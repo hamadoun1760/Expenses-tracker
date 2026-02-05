@@ -1,0 +1,249 @@
+{
+  "appTitle": "Expense Tracker",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "allExpenses": "All Expenses",
+  "@allExpenses": {
+    "description": "All expenses drawer menu item"
+  },
+  "statistics": "Statistics",
+  "@statistics": {
+    "description": "Statistics screen title"
+  },
+  "addExpense": "Add Expense",
+  "@addExpense": {
+    "description": "Add expense button text"
+  },
+  "editExpense": "Edit Expense",
+  "@editExpense": {
+    "description": "Edit expense screen title"
+  },
+  "totalExpenses": "Total Expenses",
+  "@totalExpenses": {
+    "description": "Total expenses label"
+  },
+  "currency": "FCFA",
+  "@currency": {
+    "description": "Currency abbreviation"
+  },
+  "allCategories": "All Categories",
+  "@allCategories": {
+    "description": "Filter option for all categories"
+  },
+  "noExpensesYet": "No expenses yet",
+  "@noExpensesYet": {
+    "description": "Empty state message"
+  },
+  "tapToAddExpense": "Appuyez sur le bouton + pour ajouter votre première dépense",
+  "@tapToAddExpense": {
+    "description": "Empty state instruction"
+  },
+  "manageFinances": "Manage your finances smartly",
+  "@manageFinances": {
+    "description": "App subtitle"
+  },
+  "title": "Title",
+  "@title": {
+    "description": "Title field label"
+  },
+  "enterExpenseTitle": "Enter expense title",
+  "@enterExpenseTitle": {
+    "description": "Title field hint"
+  },
+  "amount": "Amount",
+  "@amount": {
+    "description": "Amount field label"
+  },
+  "enterAmount": "Enter amount",
+  "@enterAmount": {
+    "description": "Amount field hint"
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Category field label"
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Date field label"
+  },
+  "description": "Description (Optional)",
+  "@description": {
+    "description": "Description field label"
+  },
+  "enterDescription": "Enter description",
+  "@enterDescription": {
+    "description": "Description field hint"
+  },
+  "saveExpense": "Save Expense",
+  "@saveExpense": {
+    "description": "Save button text"
+  },
+  "updateExpense": "Update Expense",
+  "@updateExpense": {
+    "description": "Update button text"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "pleaseEnterTitle": "Please enter a title",
+  "@pleaseEnterTitle": {
+    "description": "Title validation error"
+  },
+  "titleMinLength": "Title must be at least 2 characters long",
+  "@titleMinLength": {
+    "description": "Title minimum length validation"
+  },
+  "pleaseEnterAmount": "Please enter an amount",
+  "@pleaseEnterAmount": {
+    "description": "Amount validation error"
+  },
+  "pleaseEnterValidAmount": "Please enter a valid amount greater than 0",
+  "@pleaseEnterValidAmount": {
+    "description": "Amount validation error for invalid values"
+  },
+  "expenseAddedSuccessfully": "Expense added successfully",
+  "@expenseAddedSuccessfully": {
+    "description": "Success message for adding expense"
+  },
+  "expenseUpdatedSuccessfully": "Expense updated successfully",
+  "@expenseUpdatedSuccessfully": {
+    "description": "Success message for updating expense"
+  },
+  "errorSavingExpense": "Error saving expense",
+  "@errorSavingExpense": {
+    "description": "Error message when saving fails"
+  },
+  "categoryBreakdown": "Category Breakdown",
+  "@categoryBreakdown": {
+    "description": "Category breakdown section title"
+  },
+  "monthlyBreakdown": "Monthly Breakdown",
+  "@monthlyBreakdown": {
+    "description": "Monthly breakdown section title"
+  },
+  "noExpensesToAnalyze": "No expenses to analyze",
+  "@noExpensesToAnalyze": {
+    "description": "Empty statistics message"
+  },
+  "noMonthlyData": "No monthly data available",
+  "@noMonthlyData": {
+    "description": "Empty monthly data message"
+  },
+  "noExpensesInCategory": "No expenses in this category",
+  "@noExpensesInCategory": {
+    "description": "Message when no expenses in selected category"
+  },
+  "categoryPercent": "{percent}% of total",
+  "@categoryPercent": {
+    "description": "Category percentage display",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "food": "Food",
+  "transportation": "Transportation",
+  "entertainment": "Entertainment",
+  "shopping": "Shopping",
+  "health": "Health",
+  "education": "Education",
+  "other": "Other",
+  "deleteExpense": "Delete Expense",
+  "@deleteExpense": {
+    "description": "Delete expense dialog title"
+  },
+  "confirmDelete": "Are you sure you want to delete \"{title}\"?",
+  "@confirmDelete": {
+    "description": "Confirm delete expense message",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "errorLoadingExpenses": "Error loading expenses",
+  "@errorLoadingExpenses": {
+    "description": "Error message when loading expenses fails"
+  },
+  "expenseDeletedSuccessfully": "Expense deleted successfully",
+  "@expenseDeletedSuccessfully": {
+    "description": "Success message after expense deletion"
+  },
+  "errorDeletingExpense": "Error deleting expense",
+  "@errorDeletingExpense": {
+    "description": "Error message when expense deletion fails"
+  },
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "theme": "Theme",
+  "settings": "Settings",
+  "export": "Export",
+  "import": "Import",
+  "search": "Search",
+  "filter": "Filter",
+  "budgets": "Budgets",
+  "setBudget": "Set Budget",
+  "editBudget": "Edit Budget",
+  "budgetAmount": "Budget Amount",
+  "monthly": "Monthly",
+  "yearly": "Yearly",
+  "period": "Period",
+  "budgetCreated": "Budget created successfully",
+  "budgetUpdated": "Budget updated successfully",
+  "budgetDeleted": "Budget deleted successfully",
+  "noBudgetsSet": "No budgets set",
+  "createFirstBudget": "Create your first budget to track spending",
+  "budgetExceeded": "Budget exceeded",
+  "budgetWarning": "Warning: {percent}% of budget used",
+  "@budgetWarning": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "searchExpenses": "Search expenses",
+  "searchHint": "Title, description or category",
+  "noResults": "No results found",
+  "clearFilters": "Clear filters",
+  "sortBy": "Sort by",
+  "sortByDate": "Date",
+  "sortByAmount": "Amount",
+  "sortByTitle": "Title",
+  "sortByCategory": "Category",
+  "ascending": "Ascending",
+  "descending": "Descending",
+  "dateRange": "Date range",
+  "amountRange": "Amount range",
+  "from": "From",
+  "to": "To",
+  "selectStartDate": "Select start date",
+  "selectEndDate": "Select end date",
+  "exportData": "Export data",
+  "importData": "Import data",
+  "exportExpenses": "Export expenses",
+  "exportBudgets": "Export budgets",
+  "fullBackup": "Full backup",
+  "importBackup": "Import backup",
+  "fileExported": "File exported successfully",
+  "fileImported": "File imported successfully",
+  "exportError": "Export error",
+  "importError": "Import error",
+  "selectFile": "Select file",
+  "csvFormat": "CSV format",
+  "jsonFormat": "JSON format",
+  "loading": "Loading...",
+  "retry": "Retry",
+  "error": "Error",
+  "warning": "Warning",
+  "success": "Success",
+  "close": "Close",
+  "ok": "OK",
+  "confirm": "Confirm",
+  "networkError": "Network error"
+}
