@@ -1,3 +1,4 @@
+import 'package:expenses_tracking/screens/add_edit_recurring_transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recurring_transaction.dart';
@@ -12,10 +13,12 @@ class RecurringTransactionsScreen extends StatefulWidget {
   const RecurringTransactionsScreen({super.key});
 
   @override
-  State<RecurringTransactionsScreen> createState() => _RecurringTransactionsScreenState();
+  State<RecurringTransactionsScreen> createState() =>
+      _RecurringTransactionsScreenState();
 }
 
-class _RecurringTransactionsScreenState extends State<RecurringTransactionsScreen> {
+class _RecurringTransactionsScreenState
+    extends State<RecurringTransactionsScreen> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<RecurringTransaction> _recurringTransactions = [];
   List<CustomCategory> _customCategories = [];
@@ -62,11 +65,14 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
 
   Future<void> _processDueTransactions() async {
     try {
-      final processedTitles = await _databaseHelper.processDueRecurringTransactions();
+      final processedTitles = await _databaseHelper
+          .processDueRecurringTransactions();
       if (processedTitles.isNotEmpty && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${processedTitles.length} transaction(s) récurrente(s) traitée(s)'),
+            content: Text(
+              '${processedTitles.length} transaction(s) récurrente(s) traitée(s)',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -85,20 +91,29 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
         return _recurringTransactions.where((t) => !t.isActive).toList();
       case 'due':
         final now = DateTime.now();
-        return _recurringTransactions.where((t) => 
-          t.isActive && (t.nextDueDate.isBefore(now) || t.nextDueDate.isAtSameMomentAs(now))
-        ).toList();
+        return _recurringTransactions
+            .where(
+              (t) =>
+                  t.isActive &&
+                  (t.nextDueDate.isBefore(now) ||
+                      t.nextDueDate.isAtSameMomentAs(now)),
+            )
+            .toList();
       default:
         return _recurringTransactions;
     }
   }
 
-  Future<void> _deleteRecurringTransaction(RecurringTransaction transaction) async {
+  Future<void> _deleteRecurringTransaction(
+    RecurringTransaction transaction,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer la récurrence'),
-        content: Text('Voulez-vous supprimer la récurrence "${transaction.title}" ?'),
+        content: Text(
+          'Voulez-vous supprimer la récurrence "${transaction.title}" ?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -107,7 +122,10 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Supprimer',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -138,9 +156,13 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
     }
   }
 
-  Future<void> _toggleTransactionStatus(RecurringTransaction transaction) async {
+  Future<void> _toggleTransactionStatus(
+    RecurringTransaction transaction,
+  ) async {
     try {
-      final updatedTransaction = transaction.copyWith(isActive: !transaction.isActive);
+      final updatedTransaction = transaction.copyWith(
+        isActive: !transaction.isActive,
+      );
       await _databaseHelper.updateRecurringTransaction(updatedTransaction);
       _loadRecurringTransactions();
     } catch (e) {
@@ -159,7 +181,7 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddEditRecurringTransactionScreen(),
+        builder: (context) => AddEditRecurringTransactionScreen(),
       ),
     );
 
@@ -172,7 +194,8 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditRecurringTransactionScreen(transaction: transaction),
+        builder: (context) =>
+            AddEditRecurringTransactionScreen(transaction: transaction),
       ),
     );
 
@@ -186,21 +209,21 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
     final customCategory = _customCategories.firstWhere(
       (cat) => cat.name == category,
       orElse: () => CustomCategory(
-        name: '', 
-        type: 'expense', 
-        iconName: '', 
-        colorValue: 0, 
-        createdAt: DateTime.now()
+        name: '',
+        type: 'expense',
+        iconName: '',
+        colorValue: 0,
+        createdAt: DateTime.now(),
       ),
     );
-    
+
     if (customCategory.name.isNotEmpty) {
       return _getIconFromName(customCategory.iconName);
     }
-    
+
     // Handle default categories
-    final categoryConfig = type == 'expense' 
-        ? config.CategoryConfig.categoryIcons 
+    final categoryConfig = type == 'expense'
+        ? config.CategoryConfig.categoryIcons
         : IncomeConfig.incomeIcons;
     return categoryConfig[category] ?? Icons.category;
   }
@@ -210,21 +233,21 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
     final customCategory = _customCategories.firstWhere(
       (cat) => cat.name == category,
       orElse: () => CustomCategory(
-        name: '', 
-        type: 'expense', 
-        iconName: '', 
-        colorValue: 0, 
-        createdAt: DateTime.now()
+        name: '',
+        type: 'expense',
+        iconName: '',
+        colorValue: 0,
+        createdAt: DateTime.now(),
       ),
     );
-    
+
     if (customCategory.name.isNotEmpty) {
       return Color(customCategory.colorValue);
     }
-    
+
     // Handle default categories
-    final categoryColors = type == 'expense' 
-        ? config.CategoryConfig.categoryColors 
+    final categoryColors = type == 'expense'
+        ? config.CategoryConfig.categoryColors
         : IncomeConfig.incomeColors;
     return categoryColors[category] ?? Colors.grey;
   }
@@ -292,11 +315,21 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
 
   Widget _buildTransactionCard(RecurringTransaction transaction) {
     final isExpense = transaction.type == 'expense';
-    final categoryIcon = _getCategoryIcon(transaction.category, transaction.type);
-    final categoryColor = _getCategoryColor(transaction.category, transaction.type);
-    
-    final cardColor = transaction.isActive ? Colors.white : Colors.grey.shade100;
-    final isDue = transaction.isActive && transaction.nextDueDate.isBefore(DateTime.now());
+    final categoryIcon = _getCategoryIcon(
+      transaction.category,
+      transaction.type,
+    );
+    final categoryColor = _getCategoryColor(
+      transaction.category,
+      transaction.type,
+    );
+
+    final cardColor = transaction.isActive
+        ? Colors.white
+        : Colors.grey.shade100;
+    final isDue =
+        transaction.isActive &&
+        transaction.nextDueDate.isBefore(DateTime.now());
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -326,11 +359,7 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                     color: categoryColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    categoryIcon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: Icon(categoryIcon, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -345,13 +374,18 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: transaction.isActive ? AppColors.textPrimary : Colors.grey,
+                                color: transaction.isActive
+                                    ? AppColors.textPrimary
+                                    : Colors.grey,
                               ),
                             ),
                           ),
                           if (isDue)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange,
                                 borderRadius: BorderRadius.circular(12),
@@ -367,7 +401,10 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                             ),
                           if (!transaction.isActive)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.grey,
                                 borderRadius: BorderRadius.circular(12),
@@ -409,7 +446,10 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: isExpense ? AppColors.secondary : Colors.green,
                         borderRadius: BorderRadius.circular(20),
@@ -432,15 +472,19 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: transaction.isActive 
+                              color: transaction.isActive
                                   ? Colors.orange.withOpacity(0.1)
                                   : Colors.green.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
-                              transaction.isActive ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              transaction.isActive
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
                               size: 18,
-                              color: transaction.isActive ? Colors.orange : Colors.green,
+                              color: transaction.isActive
+                                  ? Colors.orange
+                                  : Colors.green,
                             ),
                           ),
                         ),
@@ -491,7 +535,11 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
               ),
               child: Row(
                 children: [
-                  Icon(Icons.schedule_rounded, size: 16, color: AppColors.textSecondary),
+                  Icon(
+                    Icons.schedule_rounded,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Prochaine: ${DateFormat('dd/MM/yyyy').format(transaction.nextDueDate)}',
@@ -592,11 +640,7 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                           ],
                         ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white30,
-                      ),
+                      Container(width: 1, height: 40, color: Colors.white30),
                       Expanded(
                         child: Column(
                           children: [
@@ -615,11 +659,7 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                           ],
                         ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white30,
-                      ),
+                      Container(width: 1, height: 40, color: Colors.white30),
                       Expanded(
                         child: Column(
                           children: [
@@ -677,7 +717,9 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                       : ListView.builder(
                           itemCount: _filteredTransactions.length,
                           itemBuilder: (context, index) {
-                            return _buildTransactionCard(_filteredTransactions[index]);
+                            return _buildTransactionCard(
+                              _filteredTransactions[index],
+                            );
                           },
                         ),
                 ),

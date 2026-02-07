@@ -28,7 +28,8 @@ class HomeDashboardScreen extends StatefulWidget {
   State<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
 }
 
-class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _HomeDashboardScreenState extends State<HomeDashboardScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   double _totalBalance = 0.0;
   double _monthlyExpenses = 0.0;
@@ -39,7 +40,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   List<CustomCategory> _customCategories = [];
   bool _isLoading = true;
   bool _isFabExpanded = false;
-  
+
   // Animation controllers for modern UI
   late AnimationController _cardAnimationController;
   late AnimationController _fabAnimationController;
@@ -49,7 +50,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initialize animation controllers
     _cardAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
@@ -59,23 +60,21 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _fabAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Curves.elasticOut,
-    ));
-    
+
+    _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fabAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
     // Start animations
     _fabAnimationController.forward();
-    
+
     _loadDashboardData();
     // Sample notifications auto-creation disabled to prevent persisting
     // notifications after uninstall/reinstall cycles
   }
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -101,7 +100,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       // Load current month date range
       final now = DateTime.now();
       final firstDayOfMonth = DateTime(now.year, now.month, 1);
-      final lastDayOfMonth = DateTime(now.year, now.month + 1, 1).subtract(const Duration(milliseconds: 1));
+      final lastDayOfMonth = DateTime(
+        now.year,
+        now.month + 1,
+        1,
+      ).subtract(const Duration(milliseconds: 1));
 
       // Load all expenses and incomes to check for data availability
       final allExpenses = await _databaseHelper.getExpenses();
@@ -110,38 +113,61 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       // Check if we have any data in current month, if not use the most recent month with data
       DateTime effectiveStartDate = firstDayOfMonth;
       DateTime effectiveEndDate = lastDayOfMonth;
-      
-      final currentMonthExpenses = await _databaseHelper.getTotalExpensesInDateRange(firstDayOfMonth, lastDayOfMonth);
-      final currentMonthIncome = await _databaseHelper.getTotalIncomeInDateRange(firstDayOfMonth, lastDayOfMonth);
-      
+
+      final currentMonthExpenses = await _databaseHelper
+          .getTotalExpensesInDateRange(firstDayOfMonth, lastDayOfMonth);
+      final currentMonthIncome = await _databaseHelper
+          .getTotalIncomeInDateRange(firstDayOfMonth, lastDayOfMonth);
+
       // If current month has no data, find the most recent month with data
-      if (currentMonthExpenses == 0.0 && currentMonthIncome == 0.0 && (allExpenses.isNotEmpty || allIncomes.isNotEmpty)) {
+      if (currentMonthExpenses == 0.0 &&
+          currentMonthIncome == 0.0 &&
+          (allExpenses.isNotEmpty || allIncomes.isNotEmpty)) {
         // Find the most recent expense or income date
         DateTime? mostRecentDate;
-        
+
         if (allExpenses.isNotEmpty) {
-          final recentExpenseDate = allExpenses.map((e) => e.date).reduce((a, b) => a.isAfter(b) ? a : b);
+          final recentExpenseDate = allExpenses
+              .map((e) => e.date)
+              .reduce((a, b) => a.isAfter(b) ? a : b);
           mostRecentDate = recentExpenseDate;
         }
-        
+
         if (allIncomes.isNotEmpty) {
-          final recentIncomeDate = allIncomes.map((e) => e.date).reduce((a, b) => a.isAfter(b) ? a : b);
-          if (mostRecentDate == null || recentIncomeDate.isAfter(mostRecentDate)) {
+          final recentIncomeDate = allIncomes
+              .map((e) => e.date)
+              .reduce((a, b) => a.isAfter(b) ? a : b);
+          if (mostRecentDate == null ||
+              recentIncomeDate.isAfter(mostRecentDate)) {
             mostRecentDate = recentIncomeDate;
           }
         }
-        
+
         if (mostRecentDate != null) {
-          effectiveStartDate = DateTime(mostRecentDate.year, mostRecentDate.month, 1);
-          effectiveEndDate = DateTime(mostRecentDate.year, mostRecentDate.month + 1, 1).subtract(const Duration(milliseconds: 1));
+          effectiveStartDate = DateTime(
+            mostRecentDate.year,
+            mostRecentDate.month,
+            1,
+          );
+          effectiveEndDate = DateTime(
+            mostRecentDate.year,
+            mostRecentDate.month + 1,
+            1,
+          ).subtract(const Duration(milliseconds: 1));
         }
       }
 
       // Load all data concurrently
       final results = await Future.wait([
         _databaseHelper.getTotalBalance(),
-        _databaseHelper.getTotalExpensesInDateRange(effectiveStartDate, effectiveEndDate),
-        _databaseHelper.getTotalIncomeInDateRange(effectiveStartDate, effectiveEndDate),
+        _databaseHelper.getTotalExpensesInDateRange(
+          effectiveStartDate,
+          effectiveEndDate,
+        ),
+        _databaseHelper.getTotalIncomeInDateRange(
+          effectiveStartDate,
+          effectiveEndDate,
+        ),
         _databaseHelper.getRecentExpenses(5),
         _databaseHelper.getActiveGoals(),
         _databaseHelper.getAccounts(),
@@ -157,7 +183,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
         _accounts = results[5] as List<Account>;
         _customCategories = results[6] as List<CustomCategory>;
         _isLoading = false;
-        
+
         // Dashboard data loaded successfully
       });
     } catch (e) {
@@ -198,148 +224,153 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 floating: false,
                 pinned: true,
                 backgroundColor: const Color(0xFF1976D2),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
-                    ],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Tableau de Bord',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Gestion Financière',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                      ],
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            actions: [
-              // Notification Bell
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
-                child: NotificationBell(),
-              ),
-              Consumer<UserProvider>(
-                builder: (context, userProvider, child) {
-                  final user = userProvider.currentUser;
-                  return IconButton(
-                    icon: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.2),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Tableau de Bord',
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Gestion Financière',
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: user?.profilePicture != null
-                          ? ClipOval(
-                              child: Image.memory(
-                                user!.profilePicture!,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 18,
-                            ),
                     ),
+                  ),
+                ),
+                actions: [
+                  // Notification Bell
+                  const Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: NotificationBell(),
+                  ),
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final user = userProvider.currentUser;
+                      return IconButton(
+                        icon: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.2),
+                            border: Border.all(color: Colors.white, width: 1),
+                          ),
+                          child: user?.profilePicture != null
+                              ? ClipOval(
+                                  child: Image.memory(
+                                    user!.profilePicture!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const UserProfileScreen(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.white),
+                    onPressed: _loadDashboardData,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.white),
-                onPressed: _loadDashboardData,
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              // Main Content
+              SliverToBoxAdapter(
+                child: Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: _isLoading
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(50),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _loadDashboardData,
+                          child: Column(
+                            children: [
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final isTablet = constraints.maxWidth >= 768;
+                                  final isDesktop =
+                                      constraints.maxWidth >= 1200;
+                                  final padding = isDesktop
+                                      ? 32.0
+                                      : (isTablet ? 24.0 : 16.0);
+
+                                  return Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: isDesktop
+                                          ? 1200
+                                          : double.infinity,
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(padding),
+                                      child: Column(
+                                        children: [
+                                          _buildModernFinancialOverview(),
+                                          const SizedBox(height: 16),
+                                          _buildModernQuickActions(),
+                                          const SizedBox(height: 16),
+                                          _buildModernRecentExpenses(),
+                                          const SizedBox(height: 100),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
             ],
           ),
-          // Main Content
-          SliverToBoxAdapter(
-            child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: _isLoading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(50),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadDashboardData,
-                      child: Column(
-                        children: [
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final isTablet = constraints.maxWidth >= 768;
-                              final isDesktop = constraints.maxWidth >= 1200;
-                              final padding = isDesktop ? 32.0 : (isTablet ? 24.0 : 16.0);
-                              
-                              return Container(
-                                constraints: BoxConstraints(
-                                  maxWidth: isDesktop ? 1200 : double.infinity,
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(padding),
-                                  child: Column(
-                                    children: [
-                                      _buildModernFinancialOverview(),
-                                      const SizedBox(height: 16),
-                                      _buildModernQuickActions(),
-                                      const SizedBox(height: 16),
-                                      _buildModernRecentExpenses(),
-                                      const SizedBox(height: 100),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-          ),
-        ],
         ),
-      ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -358,92 +389,119 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               selectedItemColor: const Color(0xFF1565C0),
               unselectedItemColor: Colors.grey[600],
               backgroundColor: Colors.white,
-            elevation: 0,
-            selectedFontSize: 12,
-            unselectedFontSize: 11,
-            iconSize: 24,
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
+              elevation: 0,
+              selectedFontSize: 12,
+              unselectedFontSize: 11,
+              iconSize: 24,
+              showSelectedLabels: true,
+              showUnselectedLabels: true,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+              onTap: (index) {
+                switch (index) {
+                  case 0:
+                    // Already on home
+                    break;
+                  case 1:
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ExpenseListScreen(),
+                      ),
+                    );
+                    break;
+                  case 2:
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsScreen(),
+                      ),
+                    );
+                    break;
+                  case 3:
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const IncomeListScreen(),
+                      ),
+                    );
+                    break;
+                }
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.dashboard_rounded),
+                  label: 'Accueil',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.receipt_long_rounded),
+                  label: 'Dépenses',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.analytics_rounded),
+                  label: 'Statistiques',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.monetization_on_rounded),
+                  label: 'Revenus',
+                ),
+              ],
             ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
-              );
-              break;
-            case 2:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const StatisticsScreen()),
-              );
-              break;
-            case 3:
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const IncomeListScreen()),
-              );
-              break;
-          }
-        },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_rounded),
-                label: 'Accueil',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.receipt_long_rounded),
-                label: 'Dépenses',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.analytics_rounded),
-                label: 'Statistiques',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.monetization_on_rounded),
-                label: 'Revenus',
-              ),
-            ],
           ),
         ),
-        ),
         floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Add Expense FAB - only show when expanded
-          if (_isFabExpanded)
-            ScaleTransition(
-              scale: _fabAnimation,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // Add Expense FAB - only show when expanded
+            if (_isFabExpanded)
+              ScaleTransition(
+                scale: _fabAnimation,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1976D2).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1976D2).withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  child: FloatingActionButton(
+                    heroTag: "add_expense_fab",
+                    onPressed: () {
+                      setState(() {
+                        _isFabExpanded = false;
+                      });
+                      _fabAnimationController.reset();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddEditExpenseScreen(),
+                        ),
+                      ).then((_) => _loadDashboardData());
+                    },
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    mini: true,
+                    child: const Icon(Icons.attach_money, color: Colors.white),
+                  ),
                 ),
+              ),
+            if (_isFabExpanded) const SizedBox(height: 16),
+            // Debt Management FAB - only show when expanded
+            if (_isFabExpanded)
+              ScaleTransition(
+                scale: _fabAnimation,
                 child: FloatingActionButton(
-                  heroTag: "add_expense_fab",
+                  heroTag: "debt_fab",
                   onPressed: () {
                     setState(() {
                       _isFabExpanded = false;
@@ -452,85 +510,56 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddEditExpenseScreen(),
+                        builder: (context) => const WestAfricanDebtScreen(),
                       ),
                     ).then((_) => _loadDashboardData());
                   },
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
+                  backgroundColor: Colors.orange,
                   mini: true,
-                  child: const Icon(Icons.attach_money, color: Colors.white),
+                  child: const Icon(Icons.account_balance),
                 ),
               ),
-            ),
-          if (_isFabExpanded) const SizedBox(height: 16),
-          // Debt Management FAB - only show when expanded
-          if (_isFabExpanded)
-            ScaleTransition(
-              scale: _fabAnimation,
-              child: FloatingActionButton(
-                heroTag: "debt_fab",
-                onPressed: () {
-                  setState(() {
-                    _isFabExpanded = false;
-                  });
-                  _fabAnimationController.reset();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WestAfricanDebtScreen(),
-                    ),
-                  ).then((_) => _loadDashboardData());
-                },
-                backgroundColor: Colors.orange,
-                mini: true,
-                child: const Icon(Icons.account_balance),
-              ),
-            ),
-          if (_isFabExpanded) const SizedBox(height: 16),
-          // Main Toggle FAB with blue gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1976D2),
-                  Color(0xFF42A5F5),
+            if (_isFabExpanded) const SizedBox(height: 16),
+            // Main Toggle FAB with blue gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1976D2).withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF1976D2).withOpacity(0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+              child: FloatingActionButton(
+                heroTag: "main_fab",
+                onPressed: () {
+                  setState(() {
+                    _isFabExpanded = !_isFabExpanded;
+                  });
+                  if (_isFabExpanded) {
+                    _fabAnimationController.forward();
+                  } else {
+                    _fabAnimationController.reset();
+                  }
+                },
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: AnimatedRotation(
+                  turns: _isFabExpanded ? 0.125 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(Icons.add, color: Colors.white),
                 ),
-              ],
-            ),
-            child: FloatingActionButton(
-              heroTag: "main_fab",
-              onPressed: () {
-                setState(() {
-                  _isFabExpanded = !_isFabExpanded;
-                });
-                if (_isFabExpanded) {
-                  _fabAnimationController.forward();
-                } else {
-                  _fabAnimationController.reset();
-                }
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: AnimatedRotation(
-                turns: _isFabExpanded ? 0.125 : 0.0,
-                duration: const Duration(milliseconds: 200),
-                child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -545,9 +574,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           children: [
             Text(
               'Actions rapides',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -603,7 +632,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -615,9 +644,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color: isDark ? theme.colorScheme.surface : Colors.white,
-            border: Border.all(
-              color: color.withOpacity(0.2),
-            ),
+            border: Border.all(color: color.withOpacity(0.2)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
@@ -635,11 +662,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                   color: color.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 24,
-                ),
+                child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(height: 8),
               Text(
@@ -661,8 +684,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
 
   Widget _buildFinancialOverviewCard() {
     final currencyProvider = Provider.of<CurrencyProvider>(context);
-    final localeProvider = Provider.of<LocaleProvider>(context);
-    
+    // Removed localeProvider as it was unused
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -672,9 +695,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           children: [
             Text(
               'Vue d\'ensemble financière',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -685,7 +708,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                     currencyProvider.formatAmount(_totalBalance),
                     Icons.account_balance_wallet,
                     _totalBalance >= 0 ? Colors.green : Colors.red,
-                    _totalBalance >= 0 ? Colors.green.shade50 : Colors.red.shade50,
+                    _totalBalance >= 0
+                        ? Colors.green.shade50
+                        : Colors.red.shade50,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -720,7 +745,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
     );
   }
 
-
   Widget _buildRecentExpensesCard() {
     return Card(
       elevation: 4,
@@ -734,14 +758,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               children: [
                 Text(
                   'Dépenses récentes',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 TextButton(
                   onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const ExpenseListScreen(),
+                    ),
                   ),
                   child: const Text('Voir tout'),
                 ),
@@ -756,7 +782,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 ),
               )
             else
-              ..._recentExpenses.map((expense) => _buildExpenseListItem(expense)),
+              ..._recentExpenses.map(
+                (expense) => _buildExpenseListItem(expense),
+              ),
           ],
         ),
       ),
@@ -766,14 +794,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   Widget _buildExpenseListItem(Expense expense) {
     final currencyProvider = Provider.of<CurrencyProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.primary.withOpacity(0.1),
             child: Icon(
               Icons.receipt,
               color: Theme.of(context).colorScheme.primary,
@@ -793,10 +823,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 ),
                 Text(
                   expense.category,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -813,10 +840,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               ),
               Text(
                 RelativeDateUtils.formatCompactDate(expense.date),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -842,14 +866,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               children: [
                 Text(
                   'Objectifs en cours',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 TextButton(
                   onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const GoalManagementScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const GoalManagementScreen(),
+                    ),
                   ),
                   child: const Text('Voir tout'),
                 ),
@@ -866,7 +892,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   Widget _buildGoalProgressItem(Goal goal) {
     final progress = goal.currentAmount / goal.targetAmount;
     final currencyProvider = Provider.of<CurrencyProvider>(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -887,7 +913,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 '${(progress * 100).toStringAsFixed(1)}%',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: progress >= 1.0 ? Colors.green : Theme.of(context).colorScheme.primary,
+                  color: progress >= 1.0
+                      ? Colors.green
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
@@ -897,16 +925,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
             value: progress.clamp(0.0, 1.0),
             backgroundColor: Colors.grey[300],
             valueColor: AlwaysStoppedAnimation<Color>(
-              progress >= 1.0 ? Colors.green : Theme.of(context).colorScheme.primary,
+              progress >= 1.0
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             '${currencyProvider.formatAmount(goal.currentAmount)} / ${currencyProvider.formatAmount(goal.targetAmount)}',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -927,9 +954,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           children: [
             Text(
               'Comptes',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ..._accounts.take(3).map((account) => _buildAccountItem(account)),
@@ -941,7 +968,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
 
   Widget _buildAccountItem(Account account) {
     final currencyProvider = Provider.of<CurrencyProvider>(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -985,14 +1012,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       showSelectedLabels: true,
       showUnselectedLabels: true,
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Accueil',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: 'Transactions',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+        BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Transactions'),
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
           label: 'Statistiques',
@@ -1010,7 +1031,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           case 1:
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+              MaterialPageRoute(
+                builder: (context) => const ExpenseListScreen(),
+              ),
             );
             break;
           case 2:
@@ -1033,9 +1056,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
   void _addExpense() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddEditExpenseScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddEditExpenseScreen()),
     ).then((_) => _loadDashboardData());
   }
 
@@ -1066,10 +1087,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF1976D2),
-            Color(0xFF42A5F5),
-          ],
+          colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -1116,6 +1134,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               children: [
                 Expanded(
                   child: Container(
+                    height: 100, // Fixed height added here
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.05),
@@ -1155,12 +1174,18 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          CurrencyFormatter.formatWithCurrency(_monthlyIncome),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            CurrencyFormatter.formatWithCurrency(
+                              _monthlyIncome,
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -1170,6 +1195,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 const SizedBox(width: 12),
                 Expanded(
                   child: Container(
+                    height: 100, // Fixed height added here
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.05),
@@ -1209,12 +1235,18 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          CurrencyFormatter.formatWithCurrency(_monthlyExpenses),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            CurrencyFormatter.formatWithCurrency(
+                              _monthlyExpenses,
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -1227,12 +1259,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
             // Total balance centered
             Container(
               width: double.infinity,
+              height: 120, // Fixed height added here for consistency
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Solde total',
@@ -1242,12 +1276,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    CurrencyFormatter.formatWithCurrency(_totalBalance),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      CurrencyFormatter.formatWithCurrency(_totalBalance),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -1294,7 +1331,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 color: const Color(0xFFE74C3C),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddEditExpenseScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const AddEditExpenseScreen(),
+                  ),
                 ).then((_) => _loadDashboardData()),
               ),
               _buildCircularActionButton(
@@ -1303,7 +1342,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 color: const Color(0xFF3498DB),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CameraReceiptScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const CameraReceiptScreen(),
+                  ),
                 ).then((_) => _loadDashboardData()),
               ),
               _buildCircularActionButton(
@@ -1312,7 +1353,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 color: const Color(0xFF27AE60),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const IncomeListScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const IncomeListScreen(),
+                  ),
                 ).then((_) => _loadDashboardData()),
               ),
               _buildCircularActionButton(
@@ -1321,7 +1364,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 color: const Color(0xFF9B59B6),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const StatisticsScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const StatisticsScreen(),
+                  ),
                 ).then((_) => _loadDashboardData()),
               ),
             ],
@@ -1355,11 +1400,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 28,
-            ),
+            child: Icon(icon, color: Colors.white, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1396,7 +1437,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'D\u00e9penses r\u00e9centes',
+                'Dépenses récentes',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[800],
@@ -1405,7 +1446,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               TextButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const ExpenseListScreen(),
+                  ),
                 ),
                 child: const Text('Voir tout'),
               ),
@@ -1418,25 +1461,21 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.receipt_long,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+                    Icon(Icons.receipt_long, size: 48, color: Colors.grey[400]),
                     const SizedBox(height: 12),
                     Text(
-                      'Aucune d\u00e9pense r\u00e9cente',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
+                      'Aucune dépense récente',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
                     ),
                   ],
                 ),
               ),
             )
           else
-            ...(_recentExpenses.take(5).map((expense) => _buildModernExpenseItem(expense)).toList()),
+            ...(_recentExpenses
+                .take(5)
+                .map((expense) => _buildModernExpenseItem(expense))
+                .toList()),
         ],
       ),
     );
@@ -1448,9 +1487,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       // First check if it's a custom category
       final customCategory = _customCategories.firstWhere(
         (cat) => cat.name == categoryName,
-        orElse: () => CustomCategory(name: '', type: 'expense', iconName: '', colorValue: 0, createdAt: DateTime.now()),
+        orElse: () => CustomCategory(
+          name: '',
+          type: 'expense',
+          iconName: '',
+          colorValue: 0,
+          createdAt: DateTime.now(),
+        ),
       );
-      
+
       if (customCategory.name.isNotEmpty) {
         // Map icon names to actual icons
         const iconMap = {
@@ -1487,7 +1532,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
         };
         return iconMap[customCategory.iconName] ?? Icons.category;
       }
-      
+
       // Fall back to hardcoded default categories
       final categoryIcons = {
         'food': Icons.restaurant,
@@ -1506,13 +1551,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       // First check if it's a custom category
       final customCategory = _customCategories.firstWhere(
         (cat) => cat.name == categoryName,
-        orElse: () => CustomCategory(name: '', type: 'expense', iconName: '', colorValue: 0, createdAt: DateTime.now()),
+        orElse: () => CustomCategory(
+          name: '',
+          type: 'expense',
+          iconName: '',
+          colorValue: 0,
+          createdAt: DateTime.now(),
+        ),
       );
-      
+
       if (customCategory.name.isNotEmpty) {
         return Color(customCategory.colorValue);
       }
-      
+
       // Fall back to hardcoded default categories
       final categoryColors = {
         'food': Colors.orange,
@@ -1545,11 +1596,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1566,10 +1613,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                 const SizedBox(height: 4),
                 Text(
                   expense.category,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),
@@ -1588,10 +1632,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
               const SizedBox(height: 4),
               Text(
                 '${expense.date.day}/${expense.date.month}',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 11),
               ),
             ],
           ),
@@ -1599,11 +1640,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       ),
     );
   }
-  
-  Widget _buildModernFinancialCard(String title, String value, IconData icon, Color iconColor, Color bgColor) {
+
+  Widget _buildModernFinancialCard(
+    String title,
+    String value,
+    IconData icon,
+    Color iconColor,
+    Color bgColor,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       height: 120,
       padding: const EdgeInsets.all(20),
@@ -1611,10 +1658,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            iconColor,
-            iconColor.withOpacity(0.8),
-          ],
+          colors: [iconColor, iconColor.withOpacity(0.8)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -1632,22 +1676,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 28,
-              ),
+              Icon(icon, color: Colors.white, size: 28),
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.arrow_upward,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                child: Icon(Icons.arrow_upward, color: Colors.white, size: 16),
               ),
             ],
           ),
@@ -1680,7 +1716,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
     );
   }
 
-  Widget _buildFinancialMetric(String title, String value, IconData icon, Color iconColor) {
+  Widget _buildFinancialMetric(
+    String title,
+    String value,
+    IconData icon,
+    Color iconColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1690,11 +1731,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            color: iconColor,
-            size: 20,
-          ),
+          Icon(icon, color: iconColor, size: 20),
           const SizedBox(height: 8),
           Text(
             title,

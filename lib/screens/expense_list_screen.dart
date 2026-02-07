@@ -27,22 +27,23 @@ class ExpenseListScreen extends StatefulWidget {
   State<ExpenseListScreen> createState() => _ExpenseListScreenState();
 }
 
-class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProviderStateMixin {
+class _ExpenseListScreenState extends State<ExpenseListScreen>
+    with TickerProviderStateMixin {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Expense> _allExpenses = [];
   List<Expense> _expenses = [];
   List<CustomCategory> _customCategories = [];
   bool _isLoading = true;
-  
+
   // Animation controllers for modern UI
   late AnimationController _fabController;
   late AnimationController _listController;
-  
+
   String _selectedCategory = 'All';
   double _totalExpenses = 0.0;
   double _totalIncomes = 0.0;
-  
+
   // Search and filtering variables
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -58,7 +59,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation controllers
     _fabController = AnimationController(
       duration: AppColors.normalAnimation,
@@ -68,7 +69,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
       duration: AppColors.normalAnimation,
       vsync: this,
     );
-    
+
     _loadExpenses();
     _loadTotalExpenses();
     _loadTotalIncomes();
@@ -92,13 +93,19 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
     // First check if it's a custom category
     final customCategory = _customCategories.firstWhere(
       (cat) => cat.name == categoryKey,
-      orElse: () => CustomCategory(name: '', type: 'expense', iconName: '', colorValue: 0, createdAt: DateTime.now()),
+      orElse: () => CustomCategory(
+        name: '',
+        type: 'expense',
+        iconName: '',
+        colorValue: 0,
+        createdAt: DateTime.now(),
+      ),
     );
-    
+
     if (customCategory.name.isNotEmpty) {
       return customCategory.name;
     }
-    
+
     // Handle default categories
     final localizations = AppLocalizations.of(context)!;
     switch (categoryKey) {
@@ -128,7 +135,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
 
     try {
       final allExpenses = await _databaseHelper.getExpenses();
-      final customCategories = await _databaseHelper.getCustomCategories(type: 'expense');
+      final customCategories = await _databaseHelper.getCustomCategories(
+        type: 'expense',
+      );
       setState(() {
         _allExpenses = allExpenses;
         _customCategories = customCategories;
@@ -141,7 +150,11 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingExpenses}: $e')),
+          SnackBar(
+            content: Text(
+              '${AppLocalizations.of(context)!.errorLoadingExpenses}: $e',
+            ),
+          ),
         );
       }
     }
@@ -153,9 +166,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
     // Apply search query
     if (_searchQuery.isNotEmpty) {
       filteredExpenses = filteredExpenses
-          .where((expense) => 
-              expense.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              (expense.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false))
+          .where(
+            (expense) =>
+                expense.title.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ||
+                (expense.description?.toLowerCase().contains(
+                      _searchQuery.toLowerCase(),
+                    ) ??
+                    false),
+          )
           .toList();
     }
 
@@ -169,12 +189,19 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
     // Apply date range filter
     if (_startDate != null) {
       filteredExpenses = filteredExpenses
-          .where((expense) => expense.date.isAfter(_startDate!) || expense.date.isAtSameMomentAs(_startDate!))
+          .where(
+            (expense) =>
+                expense.date.isAfter(_startDate!) ||
+                expense.date.isAtSameMomentAs(_startDate!),
+          )
           .toList();
     }
     if (_endDate != null) {
       filteredExpenses = filteredExpenses
-          .where((expense) => expense.date.isBefore(_endDate!.add(Duration(days: 1))))
+          .where(
+            (expense) =>
+                expense.date.isBefore(_endDate!.add(Duration(days: 1))),
+          )
           .toList();
     }
 
@@ -275,28 +302,36 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
         maxAmount: _maxAmount,
         sortBy: _sortBy,
         sortAscending: _sortAscending,
-        onFiltersChanged: (categories, startDate, endDate, minAmount, maxAmount, sortBy, sortAscending) {
-          setState(() {
-            _selectedCategories = categories;
-            _selectedCategory = categories.contains('All') ? 'All' : categories.first;
-            _startDate = startDate;
-            _endDate = endDate;
-            _minAmount = minAmount;
-            _maxAmount = maxAmount;
-            _sortBy = sortBy;
-            _sortAscending = sortAscending;
-          });
-          _applyFilters();
-        },
+        onFiltersChanged:
+            (
+              categories,
+              startDate,
+              endDate,
+              minAmount,
+              maxAmount,
+              sortBy,
+              sortAscending,
+            ) {
+              setState(() {
+                _selectedCategories = categories;
+                _selectedCategory = categories.contains('All')
+                    ? 'All'
+                    : categories.first;
+                _startDate = startDate;
+                _endDate = endDate;
+                _minAmount = minAmount;
+                _maxAmount = maxAmount;
+                _sortBy = sortBy;
+                _sortAscending = sortAscending;
+              });
+              _applyFilters();
+            },
       ),
     );
   }
 
   void _showExportDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const ExportDialog(),
-    );
+    showDialog(context: context, builder: (context) => const ExportDialog());
   }
 
   void _showQuickActions(BuildContext context) {
@@ -325,10 +360,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                 padding: EdgeInsets.all(16),
                 child: Text(
                   'Actions rapides',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
               ListTile(
@@ -395,13 +427,21 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
       _loadTotalIncomes();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.expenseDeletedSuccessfully)),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.expenseDeletedSuccessfully,
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.errorDeletingExpense}: $e')),
+          SnackBar(
+            content: Text(
+              '${AppLocalizations.of(context)!.errorDeletingExpense}: $e',
+            ),
+          ),
         );
       }
     }
@@ -413,7 +453,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)!.deleteExpense),
-          content: Text(AppLocalizations.of(context)!.confirmDelete(expense.title)),
+          content: Text(
+            AppLocalizations.of(context)!.confirmDelete(expense.title),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -435,9 +477,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
 
   void _navigateToAddExpense() async {
     final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => const AddEditExpenseScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddEditExpenseScreen()),
     );
     if (result == true) {
       _loadExpenses();
@@ -461,15 +501,13 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
 
   void _scanReceipt() {
     // Navigate to camera/receipt scanning screen
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => CameraReceiptScreen(),
-      ),
-    ).then((_) {
-      _loadExpenses();
-      _loadTotalExpenses();
-      _loadTotalIncomes();
-    });
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => CameraReceiptScreen()))
+        .then((_) {
+          _loadExpenses();
+          _loadTotalExpenses();
+          _loadTotalIncomes();
+        });
   }
 
   void _importExpenses() {
@@ -533,7 +571,10 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                       ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear_rounded, color: AppColors.primary),
+                              icon: Icon(
+                                Icons.clear_rounded,
+                                color: AppColors.primary,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 _searchQuery = '';
@@ -564,21 +605,19 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                       ),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                    ),
+                    style: const TextStyle(color: Colors.black87, fontSize: 15),
                     cursorColor: AppColors.primary,
                   ),
                 ),
               Expanded(
                 child: CustomScrollView(
                   slivers: [
-                    SliverToBoxAdapter(
-                      child: _buildExpensesSummary(context),
-                    ),
+                    SliverToBoxAdapter(child: _buildExpensesSummary(context)),
                     _buildExpensesList(context),
                   ],
                 ),
@@ -592,9 +631,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1976D2),
-                ),
+                decoration: const BoxDecoration(color: Color(0xFF1976D2)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -765,7 +802,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                 switch (index) {
                   case 0:
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const HomeDashboardScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const HomeDashboardScreen(),
+                      ),
                     );
                     break;
                   case 1:
@@ -773,12 +812,16 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                     break;
                   case 2:
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const StatisticsScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const StatisticsScreen(),
+                      ),
                     );
                     break;
                   case 3:
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const IncomeListScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const IncomeListScreen(),
+                      ),
                     );
                     break;
                 }
@@ -881,7 +924,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                _showSearchBar ? Icons.search_off_rounded : Icons.search_rounded,
+                _showSearchBar
+                    ? Icons.search_off_rounded
+                    : Icons.search_rounded,
                 color: Colors.white,
                 size: 24,
               ),
@@ -901,6 +946,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
             children: [
               Expanded(
                 child: Container(
+                  height: 120, // Fixed height
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -913,6 +959,8 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                     ],
                   ),
                   child: Column(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Center content vertically
                     children: [
                       Icon(
                         Icons.trending_down,
@@ -929,12 +977,15 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.formatWithCurrency(_totalExpenses),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          CurrencyFormatter.formatWithCurrency(_totalExpenses),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
                         ),
                       ),
                     ],
@@ -944,6 +995,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
               const SizedBox(width: 12),
               Expanded(
                 child: Container(
+                  height: 120, // Fixed height
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -956,6 +1008,8 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                     ],
                   ),
                   child: Column(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Center content vertically
                     children: [
                       Icon(
                         Icons.trending_up,
@@ -972,12 +1026,15 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.formatWithCurrency(_totalIncomes),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          CurrencyFormatter.formatWithCurrency(_totalIncomes),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
                         ),
                       ),
                     ],
@@ -1021,10 +1078,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                 const SizedBox(height: 16),
                 Text(
                   'Aucune dépense trouvée',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -1034,12 +1088,9 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          return _buildExpenseItemCard(_expenses[index]);
-        },
-        childCount: _expenses.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        return _buildExpenseItemCard(_expenses[index]);
+      }, childCount: _expenses.length),
     );
   }
 
@@ -1053,10 +1104,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
         ],
       ),
       child: ListTile(
@@ -1109,20 +1157,28 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
   }
 
   void _editExpense(Expense expense) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AddEditExpenseScreen(expense: expense),
-      ),
-    ).then((_) => _loadExpenses());
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => AddEditExpenseScreen(expense: expense),
+          ),
+        )
+        .then((_) => _loadExpenses());
   }
 
   IconData _getExpenseCategoryIcon(String category) {
     // First check if it's a custom category
     final customCategory = _customCategories.firstWhere(
       (cat) => cat.name == category,
-      orElse: () => CustomCategory(name: '', type: 'expense', iconName: '', colorValue: 0, createdAt: DateTime.now()),
+      orElse: () => CustomCategory(
+        name: '',
+        type: 'expense',
+        iconName: '',
+        colorValue: 0,
+        createdAt: DateTime.now(),
+      ),
     );
-    
+
     if (customCategory.name.isNotEmpty) {
       // Map icon names to actual icons
       const iconMap = {
@@ -1159,7 +1215,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
       };
       return iconMap[customCategory.iconName] ?? Icons.category;
     }
-    
+
     // Fall back to default category handling
     switch (category.toLowerCase()) {
       case 'food':
@@ -1194,13 +1250,19 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
     // First check if it's a custom category
     final customCategory = _customCategories.firstWhere(
       (cat) => cat.name == category,
-      orElse: () => CustomCategory(name: '', type: 'expense', iconName: '', colorValue: 0, createdAt: DateTime.now()),
+      orElse: () => CustomCategory(
+        name: '',
+        type: 'expense',
+        iconName: '',
+        colorValue: 0,
+        createdAt: DateTime.now(),
+      ),
     );
-    
+
     if (customCategory.name.isNotEmpty) {
       return Color(customCategory.colorValue);
     }
-    
+
     // Fall back to default category handling
     switch (category.toLowerCase()) {
       case 'food':
@@ -1265,7 +1327,16 @@ class _AdvancedFiltersSheet extends StatefulWidget {
   final double? maxAmount;
   final String sortBy;
   final bool sortAscending;
-  final Function(Set<String>, DateTime?, DateTime?, double?, double?, String, bool) onFiltersChanged;
+  final Function(
+    Set<String>,
+    DateTime?,
+    DateTime?,
+    double?,
+    double?,
+    String,
+    bool,
+  )
+  onFiltersChanged;
 
   const _AdvancedFiltersSheet({
     required this.selectedCategories,
@@ -1290,7 +1361,7 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
   late double? _maxAmount;
   late String _sortBy;
   late bool _sortAscending;
-  
+
   final TextEditingController _minAmountController = TextEditingController();
   final TextEditingController _maxAmountController = TextEditingController();
 
@@ -1304,7 +1375,7 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
     _maxAmount = widget.maxAmount;
     _sortBy = widget.sortBy;
     _sortAscending = widget.sortAscending;
-    
+
     if (_minAmount != null) {
       _minAmountController.text = _minAmount!.toStringAsFixed(0);
     }
@@ -1370,10 +1441,7 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
               children: [
                 Text(
                   'Filtres avancés',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 TextButton(
                   onPressed: () {
@@ -1425,28 +1493,32 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                           });
                         },
                       ),
-                      ...CategoryConfig.categories.map((category) => FilterChip(
-                        label: Text(_getCategoryDisplayName(context, category)),
-                        selected: _selectedCategories.contains(category),
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedCategories.remove('All');
-                            if (selected) {
-                              _selectedCategories.add(category);
-                            } else {
-                              _selectedCategories.remove(category);
-                            }
-                            if (_selectedCategories.isEmpty) {
-                              _selectedCategories.add('All');
-                            }
-                          });
-                        },
-                      )),
+                      ...CategoryConfig.categories.map(
+                        (category) => FilterChip(
+                          label: Text(
+                            _getCategoryDisplayName(context, category),
+                          ),
+                          selected: _selectedCategories.contains(category),
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedCategories.remove('All');
+                              if (selected) {
+                                _selectedCategories.add(category);
+                              } else {
+                                _selectedCategories.remove(category);
+                              }
+                              if (_selectedCategories.isEmpty) {
+                                _selectedCategories.add('All');
+                              }
+                            });
+                          },
+                        ),
+                      ),
                     ],
                   ),
-                  
+
                   SizedBox(height: 24),
-                  
+
                   // Date Range
                   Text(
                     'Période',
@@ -1471,9 +1543,11 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                             }
                           },
                           icon: Icon(Icons.calendar_today_rounded),
-                          label: Text(_startDate != null 
-                              ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                              : 'Date début'),
+                          label: Text(
+                            _startDate != null
+                                ? DateFormat('dd/MM/yyyy').format(_startDate!)
+                                : 'Date début',
+                          ),
                         ),
                       ),
                       SizedBox(width: 12),
@@ -1493,16 +1567,18 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                             }
                           },
                           icon: Icon(Icons.calendar_today_rounded),
-                          label: Text(_endDate != null 
-                              ? DateFormat('dd/MM/yyyy').format(_endDate!)
-                              : 'Date fin'),
+                          label: Text(
+                            _endDate != null
+                                ? DateFormat('dd/MM/yyyy').format(_endDate!)
+                                : 'Date fin',
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  
+
                   SizedBox(height: 24),
-                  
+
                   // Amount Range
                   Text(
                     'Montant',
@@ -1546,9 +1622,9 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                       ),
                     ],
                   ),
-                  
+
                   SizedBox(height: 24),
-                  
+
                   // Sort Options
                   Text(
                     'Tri',
@@ -1567,9 +1643,18 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                             labelText: 'Trier par',
                           ),
                           items: [
-                            DropdownMenuItem(value: 'date', child: Text('Date')),
-                            DropdownMenuItem(value: 'amount', child: Text('Montant')),
-                            DropdownMenuItem(value: 'title', child: Text('Titre')),
+                            DropdownMenuItem(
+                              value: 'date',
+                              child: Text('Date'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'amount',
+                              child: Text('Montant'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'title',
+                              child: Text('Titre'),
+                            ),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -1589,8 +1674,14 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
                             labelText: 'Ordre',
                           ),
                           items: [
-                            DropdownMenuItem(value: false, child: Text('Décroissant')),
-                            DropdownMenuItem(value: true, child: Text('Croissant')),
+                            DropdownMenuItem(
+                              value: false,
+                              child: Text('Décroissant'),
+                            ),
+                            DropdownMenuItem(
+                              value: true,
+                              child: Text('Croissant'),
+                            ),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -1605,7 +1696,7 @@ class _AdvancedFiltersSheetState extends State<_AdvancedFiltersSheet> {
               ),
             ),
           ),
-          
+
           // Apply Button
           Container(
             padding: EdgeInsets.all(20),

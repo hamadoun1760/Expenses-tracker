@@ -21,7 +21,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  
+
   final _paymentAmountController = TextEditingController();
   final _paymentDescriptionController = TextEditingController();
   DateTime _paymentDate = DateTime.now();
@@ -35,9 +35,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
     _fadeController.forward();
   }
 
@@ -58,10 +59,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF5F7FA),
-              Color(0xFFEEF2F7),
-            ],
+            colors: [Color(0xFFF5F7FA), Color(0xFFEEF2F7)],
           ),
         ),
         child: SafeArea(
@@ -73,7 +71,9 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   (d) => d.id == widget.debt.id,
                   orElse: () => widget.debt,
                 );
-                final payments = debtProvider.getPaymentsForDebt(widget.debt.id!);
+                final payments = debtProvider.getPaymentsForDebt(
+                  widget.debt.id!,
+                );
 
                 return CustomScrollView(
                   slivers: [
@@ -131,7 +131,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
     final headerGradientColors = isDette
         ? [const Color(0xFF1976D2), const Color(0xFF42A5F5)]
         : [const Color(0xFF388E3C), const Color(0xFF66BB6A)];
-    final headerShadowColor = isDette 
+    final headerShadowColor = isDette
         ? const Color(0xFF1976D2)
         : const Color(0xFF388E3C);
     final headerIcon = isDette
@@ -165,11 +165,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                 color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                headerIcon,
-                color: Colors.white,
-                size: 28,
-              ),
+              child: Icon(headerIcon, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -196,7 +192,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
             ),
             if (debt.status == DebtStatus.active)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -224,6 +223,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
           Expanded(
             child: AnimatedCard(
               child: Container(
+                height: 140, // Fixed height
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -237,6 +237,8 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   ],
                 ),
                 child: Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center content vertically
                   children: [
                     Text(
                       'Solde Actuel',
@@ -246,12 +248,15 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${debt.currentBalance.toStringAsFixed(0)} FCFA',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${debt.currentBalance.toStringAsFixed(0)} FCFA',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1976D2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -272,6 +277,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
             child: AnimatedCard(
               delay: 200,
               child: Container(
+                height: 140, // Fixed height
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -285,6 +291,8 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   ],
                 ),
                 child: Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center content vertically
                   children: [
                     Text(
                       'Paiement Min.',
@@ -294,12 +302,15 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${debt.minimumPayment.toStringAsFixed(0)} FCFA',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${debt.minimumPayment.toStringAsFixed(0)} FCFA',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1976D2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -322,7 +333,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
 
   Widget _buildProgressCard(BuildContext context, Debt debt) {
     final estimatedPayoffDate = debt.estimatedPayoffDate;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: AnimatedCard(
@@ -355,7 +366,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: debt.statusColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -377,7 +391,9 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                 child: LinearProgressIndicator(
                   value: debt.paidPercentage,
                   backgroundColor: Colors.grey.shade200,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF1976D2),
+                  ),
                   minHeight: 12,
                 ),
               ),
@@ -394,9 +410,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   ),
                   Text(
                     '${((1 - debt.paidPercentage) * 100).toStringAsFixed(1)}% restant',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -414,9 +428,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                     const SizedBox(width: 8),
                     Text(
                       'Remboursement estimé: ${DateFormat('dd/MM/yyyy').format(estimatedPayoffDate)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -446,10 +458,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF1976D2),
-                            Color(0xFF42A5F5),
-                          ],
+                          colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
@@ -553,10 +562,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF25D366),
-                      Color(0xFF128C7E),
-                    ],
+                    colors: [Color(0xFF25D366), Color(0xFF128C7E)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
@@ -571,11 +577,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.message,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    const Icon(Icons.message, color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
@@ -599,7 +601,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
     );
   }
 
-  Widget _buildPaymentHistory(BuildContext context, List<DebtPayment> payments) {
+  Widget _buildPaymentHistory(
+    BuildContext context,
+    List<DebtPayment> payments,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: AnimatedCard(
@@ -625,10 +630,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
-                    ],
+                    colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
@@ -649,92 +651,101 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                 child: Column(
                   children: [
                     if (payments.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.payment,
-                          size: 48,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Aucun paiement enregistré',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: payments.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final payment = payments[index];
-                    return ListTile(
-                      leading: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: payment.isExtraPayment
-                              ? Colors.green.withOpacity(0.2)
-                              : Colors.blue.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          payment.isExtraPayment ? Icons.star : Icons.payment,
-                          color: payment.isExtraPayment ? Colors.green : Colors.blue,
-                        ),
-                      ),
-                      title: Text(
-                        '${payment.amount.toStringAsFixed(0)} FCFA',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            DateFormat('dd/MM/yyyy').format(payment.paymentDate),
-                          ),
-                          if (payment.description != null && payment.description!.isNotEmpty)
-                            Text(
-                              payment.description!,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.payment,
+                                size: 48,
+                                color: Colors.grey.shade400,
                               ),
-                            ),
-                        ],
-                      ),
-                      trailing: payment.isExtraPayment
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Aucun paiement enregistré',
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: payments.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final payment = payments[index];
+                          return ListTile(
+                            leading: Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.2),
+                                color: payment.isExtraPayment
+                                    ? Colors.green.withOpacity(0.2)
+                                    : Colors.blue.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'Extra',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: Icon(
+                                payment.isExtraPayment
+                                    ? Icons.star
+                                    : Icons.payment,
+                                color: payment.isExtraPayment
+                                    ? Colors.green
+                                    : Colors.blue,
                               ),
-                            )
-                          : null,
-                    );
-                  },
-                ),
+                            ),
+                            title: Text(
+                              '${payment.amount.toStringAsFixed(0)} FCFA',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).format(payment.paymentDate),
+                                ),
+                                if (payment.description != null &&
+                                    payment.description!.isNotEmpty)
+                                  Text(
+                                    payment.description!,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            trailing: payment.isExtraPayment
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      'Extra',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -747,7 +758,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
 
   void _editDebt(BuildContext context, Debt debt) async {
     final debtProvider = Provider.of<DebtProvider>(context, listen: false);
-    
+
     if (debt.transactionType == DebtTransactionType.creance) {
       // Use SimpleAddDebtScreen for créances
       await Navigator.of(context).push(
@@ -769,7 +780,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
         ),
       );
     }
-    
+
     // Reload debts after returning from edit
     if (mounted) {
       await debtProvider.loadDebts();
@@ -791,8 +802,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
             onPressed: () async {
               Navigator.pop(context);
               try {
-                await Provider.of<DebtProvider>(context, listen: false)
-                    .deleteDebt(debt.id!);
+                await Provider.of<DebtProvider>(
+                  context,
+                  listen: false,
+                ).deleteDebt(debt.id!);
                 if (mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -814,7 +827,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Supprimer',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -847,267 +863,309 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   ),
                 ),
                 child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF1976D2),
-                          Color(0xFF42A5F5),
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.payment,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Ajouter un Paiement',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Rembourser votre dette',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.payment,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Ajouter un Paiement',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _paymentAmountController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: 'Montant *',
+                                hintText: debt.minimumPayment.toStringAsFixed(
+                                  0,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Rembourser votre dette',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _paymentAmountController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'Montant *',
-                              hintText: debt.minimumPayment.toStringAsFixed(0),
-                              prefixIcon: const Icon(Icons.money),
-                              suffixText: 'FCFA',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF1976D2),
-                                  width: 2,
-                                ),
-                              ),
-                              labelStyle: const TextStyle(
-                                color: Color(0xFF1976D2),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _paymentDescriptionController,
-                            decoration: InputDecoration(
-                              labelText: 'Description (optionnelle)',
-                              hintText: 'Note sur le paiement...',
-                              prefixIcon: const Icon(Icons.description),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF1976D2),
-                                  width: 2,
-                                ),
-                              ),
-                              labelStyle: const TextStyle(
-                                color: Color(0xFF1976D2),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          CheckboxListTile(
-                            title: const Text('Paiement supplémentaire'),
-                            subtitle: const Text('En plus du paiement minimum'),
-                            value: _isExtraPayment,
-                            onChanged: (value) {
-                              setState(() {
-                                _isExtraPayment = value ?? false;
-                              });
-                            },
-                            activeColor: const Color(0xFF1976D2),
-                          ),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : () async {
-                                if (_paymentAmountController.text.trim().isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Erreur'),
-                                      content: const Text('Veuillez entrer un montant'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(),
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  return;
-                                }
-                                
-                                final paymentAmount = double.tryParse(_paymentAmountController.text);
-                                
-                                if (paymentAmount == null || paymentAmount <= 0) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Erreur'),
-                                      content: const Text('Veuillez entrer un montant valide'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(),
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  return;
-                                }
-                                
-                                if (paymentAmount > debt.currentBalance) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Montant Invalide'),
-                                      content: Text('Le montant ne peut pas dépasser le solde restant (${debt.currentBalance.toStringAsFixed(0)} FCFA)'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(),
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  return;
-                                }
-                                
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                
-                                try {
-                                  final payment = DebtPayment(
-                                    debtId: debt.id!,
-                                    amount: paymentAmount,
-                                    paymentDate: _paymentDate,
-                                    description: _paymentDescriptionController.text.trim().isEmpty
-                                        ? null
-                                        : _paymentDescriptionController.text.trim(),
-                                    isExtraPayment: _isExtraPayment,
-                                    createdAt: DateTime.now(),
-                                  );
-
-                                  await Provider.of<DebtProvider>(context, listen: false)
-                                      .addPayment(payment);
-
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Paiement ajouté avec succès'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Erreur: $e'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                } finally {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1976D2),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
+                                prefixIcon: const Icon(Icons.money),
+                                suffixText: 'FCFA',
+                                border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF1976D2),
+                                    width: 2,
+                                  ),
+                                ),
+                                labelStyle: const TextStyle(
+                                  color: Color(0xFF1976D2),
+                                ),
                               ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Ajouter Paiement',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _paymentDescriptionController,
+                              decoration: InputDecoration(
+                                labelText: 'Description (optionnelle)',
+                                hintText: 'Note sur le paiement...',
+                                prefixIcon: const Icon(Icons.description),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF1976D2),
+                                    width: 2,
+                                  ),
+                                ),
+                                labelStyle: const TextStyle(
+                                  color: Color(0xFF1976D2),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            CheckboxListTile(
+                              title: const Text('Paiement supplémentaire'),
+                              subtitle: const Text(
+                                'En plus du paiement minimum',
+                              ),
+                              value: _isExtraPayment,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isExtraPayment = value ?? false;
+                                });
+                              },
+                              activeColor: const Color(0xFF1976D2),
+                            ),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () async {
+                                        if (_paymentAmountController.text
+                                            .trim()
+                                            .isEmpty) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Erreur'),
+                                              content: const Text(
+                                                'Veuillez entrer un montant',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(
+                                                    context,
+                                                  ).pop(),
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        final paymentAmount = double.tryParse(
+                                          _paymentAmountController.text,
+                                        );
+
+                                        if (paymentAmount == null ||
+                                            paymentAmount <= 0) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Erreur'),
+                                              content: const Text(
+                                                'Veuillez entrer un montant valide',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(
+                                                    context,
+                                                  ).pop(),
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        if (paymentAmount >
+                                            debt.currentBalance) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text(
+                                                'Montant Invalide',
+                                              ),
+                                              content: Text(
+                                                'Le montant ne peut pas dépasser le solde restant (${debt.currentBalance.toStringAsFixed(0)} FCFA)',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(
+                                                    context,
+                                                  ).pop(),
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        setState(() {
+                                          _isLoading = true;
+                                        });
+
+                                        try {
+                                          final payment = DebtPayment(
+                                            debtId: debt.id!,
+                                            amount: paymentAmount,
+                                            paymentDate: _paymentDate,
+                                            description:
+                                                _paymentDescriptionController
+                                                    .text
+                                                    .trim()
+                                                    .isEmpty
+                                                ? null
+                                                : _paymentDescriptionController
+                                                      .text
+                                                      .trim(),
+                                            isExtraPayment: _isExtraPayment,
+                                            createdAt: DateTime.now(),
+                                          );
+
+                                          await Provider.of<DebtProvider>(
+                                            context,
+                                            listen: false,
+                                          ).addPayment(payment);
+
+                                          if (mounted) {
+                                            Navigator.pop(context);
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Paiement ajouté avec succès',
+                                                ),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Erreur: $e'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        } finally {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        }
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1976D2),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Ajouter Paiement',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
+                  ],
+                ),
+              );
             },
           );
         },
@@ -1123,17 +1181,29 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
 
     // Guard: Check for invalid inputs
     if (currentBalance <= 0) {
-      _showErrorDialog(context, 'Erreur', 'Le solde du prêt doit être supérieur à 0.');
+      _showErrorDialog(
+        context,
+        'Erreur',
+        'Le solde du prêt doit être supérieur à 0.',
+      );
       return;
     }
 
     if (monthlyPayment <= 0) {
-      _showErrorDialog(context, 'Erreur', 'Le paiement mensuel doit être supérieur à 0.');
+      _showErrorDialog(
+        context,
+        'Erreur',
+        'Le paiement mensuel doit être supérieur à 0.',
+      );
       return;
     }
 
     if (annualRate < 0 || annualRate > 100) {
-      _showErrorDialog(context, 'Erreur', 'Le taux d\'intérêt doit être entre 0 et 100%.');
+      _showErrorDialog(
+        context,
+        'Erreur',
+        'Le taux d\'intérêt doit être entre 0 et 100%.',
+      );
       return;
     }
 
@@ -1156,12 +1226,16 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
     DateTime currentDate = DateTime.now();
     double totalInterestPaid = 0;
     const int maxMonths = 60;
-    const double balanceThreshold = 0.01; // Stop when balance < 0.01 (essentially paid off)
+    const double balanceThreshold =
+        0.01; // Stop when balance < 0.01 (essentially paid off)
 
     // Calculate projections for up to 60 months or until debt is paid off
     for (int i = 0; i < maxMonths && remainingBalance > balanceThreshold; i++) {
       final interestPayment = remainingBalance * interestRate;
-      final principalPayment = (monthlyPayment - interestPayment).clamp(0, remainingBalance);
+      final principalPayment = (monthlyPayment - interestPayment).clamp(
+        0,
+        remainingBalance,
+      );
       final totalPayment = interestPayment + principalPayment;
 
       remainingBalance -= principalPayment;
@@ -1174,7 +1248,8 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
         'payment': (totalPayment * 100).round() / 100,
         'principal': (principalPayment * 100).round() / 100,
         'interest': (interestPayment * 100).round() / 100,
-        'balance': (remainingBalance.clamp(0, double.infinity) * 100).round() / 100,
+        'balance':
+            (remainingBalance.clamp(0, double.infinity) * 100).round() / 100,
       });
 
       if (remainingBalance <= balanceThreshold) break;
@@ -1182,25 +1257,28 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
 
     // Guard: Check if no projections were generated
     if (projections.isEmpty) {
-      _showErrorDialog(context, 'Erreur', 'Impossible de calculer les projections. Vérifiez les données du prêt.');
+      _showErrorDialog(
+        context,
+        'Erreur',
+        'Impossible de calculer les projections. Vérifiez les données du prêt.',
+      );
       return;
     }
 
     // Guard: Check if debt never gets paid off (safety net)
-    if (projections.length == maxMonths && projections.last['balance'] as double > balanceThreshold) {
+    if (projections.length == maxMonths &&
+        projections.last['balance'] as double > balanceThreshold) {
       _showWarningDialog(
         context,
         'Attention',
         'Au rythme actuel de ${monthlyPayment.toStringAsFixed(0)} FCFA par mois, le prêt ne sera pas remboursé dans 5 ans. Augmentez votre paiement mensuel.',
       );
     }
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800, maxHeight: 800),
           decoration: BoxDecoration(
@@ -1216,10 +1294,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
-                    ],
+                    colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
@@ -1273,152 +1348,196 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F7FA),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildProjectionStat('Solde Actuel', '${currentBalance.toStringAsFixed(0)} FCFA'),
-                          const SizedBox(height: 12),
-                          _buildProjectionStat('Paiement Mensuel', '${monthlyPayment.toStringAsFixed(0)} FCFA'),
-                          const SizedBox(height: 12),
-                          _buildProjectionStat('Mois Estimés', '${projections.length}'),
-                          const SizedBox(height: 12),
-                          _buildProjectionStat('Intérêts Totaux', '${totalInterestPaid.toStringAsFixed(0)} FCFA', isImportant: true),
-                          const SizedBox(height: 12),
-                          if (projections.isNotEmpty)
-                            _buildProjectionStat(
-                              'Date Estimée de Remboursement',
-                              DateFormat('dd/MM/yyyy').format(projections.last['date'] as DateTime),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Détail des Paiements (premiers 12 mois)',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1976D2),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Container(
+                      Container(
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFFF5F7FA),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: DataTable(
-                          columnSpacing: 12,
-                          horizontalMargin: 8,
-                          headingRowHeight: 40,
-                          dataRowHeight: 36,
-                          columns: const [
-                            DataColumn(
-                              label: Text(
-                                'Mois',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildProjectionStat(
+                              'Solde Actuel',
+                              '${currentBalance.toStringAsFixed(0)} FCFA',
                             ),
-                            DataColumn(
-                              label: Text(
-                                'Paiement',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
+                            const SizedBox(height: 12),
+                            _buildProjectionStat(
+                              'Paiement Mensuel',
+                              '${monthlyPayment.toStringAsFixed(0)} FCFA',
                             ),
-                            DataColumn(
-                              label: Text(
-                                'Capital',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
+                            const SizedBox(height: 12),
+                            _buildProjectionStat(
+                              'Mois Estimés',
+                              '${projections.length}',
                             ),
-                            DataColumn(
-                              label: Text(
-                                'Intérêts',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
+                            const SizedBox(height: 12),
+                            _buildProjectionStat(
+                              'Intérêts Totaux',
+                              '${totalInterestPaid.toStringAsFixed(0)} FCFA',
+                              isImportant: true,
                             ),
-                            DataColumn(
-                              label: Text(
-                                'Solde',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            const SizedBox(height: 12),
+                            if (projections.isNotEmpty)
+                              _buildProjectionStat(
+                                'Date Estimée de Remboursement',
+                                DateFormat(
+                                  'dd/MM/yyyy',
+                                ).format(projections.last['date'] as DateTime),
                               ),
-                            ),
                           ],
-                          rows: projections
-                              .take(12)
-                              .map(
-                                (proj) => DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Text('${proj['month']}', style: const TextStyle(fontSize: 11)),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        (proj['payment'] as double).toStringAsFixed(0),
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        (proj['principal'] as double).toStringAsFixed(0),
-                                        style: const TextStyle(color: Colors.green, fontSize: 11),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        (proj['interest'] as double).toStringAsFixed(0),
-                                        style: const TextStyle(color: Colors.red, fontSize: 11),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        (proj['balance'] as double).toStringAsFixed(0),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF1976D2),
-                                          fontSize: 11,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Détail des Paiements (premiers 12 mois)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1976D2),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DataTable(
+                            columnSpacing: 12,
+                            horizontalMargin: 8,
+                            headingRowHeight: 40,
+                            dataRowHeight: 36,
+                            columns: const [
+                              DataColumn(
+                                label: Text(
+                                  'Mois',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Paiement',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Capital',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Intérêts',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Solde',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows: projections
+                                .take(12)
+                                .map(
+                                  (proj) => DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text(
+                                          '${proj['month']}',
+                                          style: const TextStyle(fontSize: 11),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1976D2),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                                      DataCell(
+                                        Text(
+                                          (proj['payment'] as double)
+                                              .toStringAsFixed(0),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          (proj['principal'] as double)
+                                              .toStringAsFixed(0),
+                                          style: const TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          (proj['interest'] as double)
+                                              .toStringAsFixed(0),
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          (proj['balance'] as double)
+                                              .toStringAsFixed(0),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1976D2),
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
-                        child: const Text(
-                          'Fermer',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1976D2),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Fermer',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     ],
                   ),
                 ),
@@ -1430,7 +1549,11 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
     );
   }
 
-  Widget _buildProjectionStat(String label, String value, {bool isImportant = false}) {
+  Widget _buildProjectionStat(
+    String label,
+    String value, {
+    bool isImportant = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -1510,7 +1633,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
   // ===== WHATSAPP REMINDER =====
   Future<void> _sendWhatsAppReminder(BuildContext context, Debt debt) async {
     try {
-      if (debt.phoneNumber.isEmpty) {
+      if (debt.contactPhone == null || debt.contactPhone!.isEmpty) {
         _showErrorDialog(
           context,
           'Numéro absent',
@@ -1520,10 +1643,10 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen>
       }
 
       await WhatsAppService().sendDebtReminder(
-        phoneNumber: debt.phoneNumber,
-        name: debt.debtorCreditorName,
+        phoneNumber: debt.contactPhone!,
+        name: debt.contactName,
         amount: debt.currentBalance,
-        description: debt.description,
+        description: debt.description ?? '',
       );
 
       if (context.mounted) {
