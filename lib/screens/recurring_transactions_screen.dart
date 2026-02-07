@@ -6,7 +6,7 @@ import '../helpers/database_helper.dart';
 import '../utils/theme.dart';
 import '../config/category_config.dart' as config;
 import '../config/income_config.dart';
-import 'add_edit_recurring_transaction_screen.dart';
+import '../utils/currency_formatter.dart';
 
 class RecurringTransactionsScreen extends StatefulWidget {
   const RecurringTransactionsScreen({super.key});
@@ -415,7 +415,7 @@ class _RecurringTransactionsScreenState extends State<RecurringTransactionsScree
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${isExpense ? '-' : '+'}${transaction.amount.toStringAsFixed(0)} FCFA',
+                        '${isExpense ? '-' : '+'}${CurrencyFormatter.formatWithCurrency(transaction.amount)}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

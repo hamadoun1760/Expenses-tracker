@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../models/expense.dart';
 import '../models/income.dart';
 import '../helpers/database_helper.dart';
+import '../utils/currency_formatter.dart';
 
 // Export formats
 enum ExportFormat { csv, pdf }
@@ -153,7 +154,7 @@ class ExportService {
       csvData.add([
         DateFormat('yyyy-MM-dd').format(expense.date),
         _cleanText(expense.title),
-        expense.amount.toStringAsFixed(0),
+        CurrencyFormatter.format(expense.amount),
         _cleanText(expense.category),
         _cleanText(expense.description),
       ]);
@@ -172,7 +173,7 @@ class ExportService {
       csvData.add([
         DateFormat('yyyy-MM-dd').format(income.date),
         _cleanText(income.title),
-        income.amount.toStringAsFixed(0),
+        CurrencyFormatter.format(income.amount),
         _cleanText(income.category),
         _cleanText(income.description),
       ]);
@@ -193,7 +194,7 @@ class ExportService {
         DateFormat('yyyy-MM-dd').format(expense.date),
         'Depense',
         _cleanText(expense.title),
-        '-${expense.amount.toStringAsFixed(0)}', // Negative for expenses
+        '-${CurrencyFormatter.format(expense.amount)}', // Negative for expenses
         _cleanText(expense.category),
         _cleanText(expense.description),
       ]);
@@ -205,7 +206,7 @@ class ExportService {
         DateFormat('yyyy-MM-dd').format(income.date),
         'Revenu',
         _cleanText(income.title),
-        '+${income.amount.toStringAsFixed(0)}', // Positive for income
+        '+${CurrencyFormatter.format(income.amount)}', // Positive for income
         _cleanText(income.category),
         _cleanText(income.description),
       ]);
@@ -271,7 +272,7 @@ class ExportService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('TOTAL DEPENSES:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('${totalAmount.toStringAsFixed(0)} FCFA', style: pw.TextStyle(color: PdfColors.red)),
+                      pw.Text('${CurrencyFormatter.formatWithCurrency(totalAmount)}', style: pw.TextStyle(color: PdfColors.red)),
                     ],
                   ),
                 ],
@@ -287,7 +288,7 @@ class ExportService {
               data: expenses.map((expense) => [
                 DateFormat('dd/MM/yyyy').format(expense.date),
                 _cleanText(expense.title),
-                expense.amount.toStringAsFixed(0),
+                CurrencyFormatter.format(expense.amount),
                 _cleanText(expense.category),
               ]).toList(),
             ),
@@ -354,7 +355,7 @@ class ExportService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('TOTAL REVENUS:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('${totalAmount.toStringAsFixed(0)} FCFA', style: pw.TextStyle(color: PdfColors.green)),
+                      pw.Text('${CurrencyFormatter.formatWithCurrency(totalAmount)}', style: pw.TextStyle(color: PdfColors.green)),
                     ],
                   ),
                 ],
@@ -370,7 +371,7 @@ class ExportService {
               data: incomes.map((income) => [
                 DateFormat('dd/MM/yyyy').format(income.date),
                 _cleanText(income.title),
-                income.amount.toStringAsFixed(0),
+                CurrencyFormatter.format(income.amount),
                 _cleanText(income.category),
               ]).toList(),
             ),
@@ -431,7 +432,7 @@ class ExportService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('REVENUS TOTAUX:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('${totalIncomes.toStringAsFixed(0)} FCFA', style: pw.TextStyle(color: PdfColors.green)),
+                      pw.Text('${CurrencyFormatter.formatWithCurrency(totalIncomes)}', style: pw.TextStyle(color: PdfColors.green)),
                     ],
                   ),
                   pw.SizedBox(height: 8),
@@ -439,7 +440,7 @@ class ExportService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('DEPENSES TOTALES:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text('${totalExpenses.toStringAsFixed(0)} FCFA', style: pw.TextStyle(color: PdfColors.red)),
+                      pw.Text('${CurrencyFormatter.formatWithCurrency(totalExpenses)}', style: pw.TextStyle(color: PdfColors.red)),
                     ],
                   ),
                   pw.SizedBox(height: 8),
@@ -447,7 +448,7 @@ class ExportService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('SOLDE NET:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
-                      pw.Text('${netIncome.toStringAsFixed(0)} FCFA', 
+                      pw.Text('${CurrencyFormatter.formatWithCurrency(netIncome)}', 
                         style: pw.TextStyle(
                           fontWeight: pw.FontWeight.bold, 
                           fontSize: 16,
@@ -473,7 +474,7 @@ class ExportService {
                   DateFormat('dd/MM/yyyy').format(expense.date),
                   'Depense',
                   _cleanText(expense.title),
-                  '-${expense.amount.toStringAsFixed(0)}',
+                  '-${CurrencyFormatter.format(expense.amount)}',
                   _cleanText(expense.category),
                 ]),
                 // Add incomes
@@ -481,7 +482,7 @@ class ExportService {
                   DateFormat('dd/MM/yyyy').format(income.date),
                   'Revenu',
                   _cleanText(income.title),
-                  '+${income.amount.toStringAsFixed(0)}',
+                  '+${CurrencyFormatter.format(income.amount)}',
                   _cleanText(income.category),
                 ]),
               ],

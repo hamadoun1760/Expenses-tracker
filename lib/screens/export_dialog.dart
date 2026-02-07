@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/export_service.dart';
+import '../utils/currency_formatter.dart';
 
 class ExportDialog extends StatefulWidget {
   const ExportDialog({super.key});
@@ -314,7 +315,7 @@ class _ExportDialogState extends State<ExportDialog> {
                         children: [
                           const Text('Dépenses:'),
                           Text(
-                            '${_exportSummary!['expenses_count']} entrées • ${(_exportSummary!['total_expenses'] as double).toStringAsFixed(0)} FCFA',
+                            '${_exportSummary!['expenses_count']} entrées • ${CurrencyFormatter.format(_exportSummary!['total_expenses'] as double)} FCFA',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -325,7 +326,7 @@ class _ExportDialogState extends State<ExportDialog> {
                         children: [
                           const Text('Revenus:'),
                           Text(
-                            '${_exportSummary!['incomes_count']} entrées • ${(_exportSummary!['total_incomes'] as double).toStringAsFixed(0)} FCFA',
+                            '${_exportSummary!['incomes_count']} entrées • ${CurrencyFormatter.format(_exportSummary!['total_incomes'] as double)} FCFA',
                             style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
                           ),
                         ],
@@ -336,7 +337,7 @@ class _ExportDialogState extends State<ExportDialog> {
                         children: [
                           const Text('Solde net:'),
                           Text(
-                            '${(_exportSummary!['net_income'] as double).toStringAsFixed(0)} FCFA',
+                            CurrencyFormatter.formatWithCurrency(_exportSummary!['net_income'] as double),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: (_exportSummary!['net_income'] as double) >= 0 ? Colors.green : Colors.red,

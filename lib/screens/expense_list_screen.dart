@@ -5,6 +5,7 @@ import '../models/expense.dart';
 import '../models/custom_category.dart';
 import '../helpers/database_helper.dart';
 import '../utils/theme.dart';
+import '../utils/currency_formatter.dart';
 
 import 'add_edit_expense_screen.dart';
 import 'camera_receipt_screen.dart';
@@ -511,6 +512,67 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
           child: Column(
             children: [
               _buildCustomAppBar(context),
+              if (_showSearchBar)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher par titre ou description...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 14,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear_rounded, color: AppColors.primary),
+                              onPressed: () {
+                                _searchController.clear();
+                                _searchQuery = '';
+                                _applyFilters();
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.primary.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.primary.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 15,
+                    ),
+                    cursorColor: AppColors.primary,
+                  ),
+                ),
               Expanded(
                 child: CustomScrollView(
                   slivers: [
@@ -868,7 +930,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${_totalExpenses.toStringAsFixed(0)} FCFA',
+                        CurrencyFormatter.formatWithCurrency(_totalExpenses),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -911,7 +973,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${_totalIncomes.toStringAsFixed(0)} FCFA',
+                        CurrencyFormatter.formatWithCurrency(_totalIncomes),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -1025,7 +1087,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> with TickerProvid
           ],
         ),
         trailing: Text(
-          '${expense.amount.toStringAsFixed(0)} FCFA',
+          CurrencyFormatter.formatWithCurrency(expense.amount),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,

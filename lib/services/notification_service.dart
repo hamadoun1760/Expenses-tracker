@@ -5,6 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import '../helpers/database_helper.dart';
 import '../models/notification.dart';
+import '../utils/currency_formatter.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -306,53 +307,48 @@ class NotificationService {
       case NotificationCategory.recurringTransaction:
         return 'recurring_transaction';
       case NotificationCategory.reminder:
-      default:
         return 'general';
     }
   }
 
   // Create sample notifications for testing
   Future<void> createSampleNotifications() async {
-    final sampleNotifications = [
-      AppNotification(
-        title: 'Nouveau revenu ajouté',
-        body: 'Un salaire de 250,000 FCFA a été enregistré avec succès',
-        category: 'income_reminder',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        actionText: 'Voir détails',
-      ),
-      AppNotification(
-        title: 'Objectif presque atteint !',
-        body: 'Votre objectif d\'épargne: 75% accompli. Plus que 50,000 FCFA !',
-        category: 'goal_progress',
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        actionText: 'Voir progrès',
-      ),
-      AppNotification(
-        title: 'Transaction récurrente',
-        body: 'Rappel: Forfait internet (5,000 FCFA) sera débité demain',
-        category: 'recurring_transaction',
-        timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-        actionText: 'Gérer',
-      ),
-      AppNotification(
-        title: 'Rapport mensuel prêt',
-        body: 'Votre rapport financier de Janvier 2026 est disponible',
-        category: 'general',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        actionText: 'Télécharger',
-      ),
-      AppNotification(
-        title: 'Nouvelle fonctionnalité',
-        body: 'Découvrez les graphiques améliorés dans les statistiques',
-        category: 'general',
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        actionText: 'Explorer',
-      ),
-    ];
+    try {
+      // Check if sample notifications already exist to avoid duplicates
+      final existingNotifications = await _databaseHelper.getNotifications();
+      
+      // List of essential notifications to create if they don't exist
+      final sampleNotifications = [
+        AppNotification(
+          title: 'Objectif presque atteint !',
+          body: 'Votre objectif d\'épargne: 75% accompli. Plus que 50,000 FCFA !',
+          category: 'goal_progress',
+          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+          actionText: 'Voir progrès',
+          actionType: 'see_goal_progress',
+        ),
+        AppNotification(
+          title: 'Transaction récurrente',
+          body: 'Rappel: Forfait internet (5,000 FCFA) sera débité demain',
+          category: 'recurring_transaction',
+          timestamp: DateTime.now().subtract(const Duration(hours: 4)),
+          actionText: 'Gérer',
+          actionType: 'manage_recurring',
+        ),
+      ];
 
-    for (final notification in sampleNotifications) {
-      await _databaseHelper.insertNotification(notification);
+      // Only add notifications that don't already exist
+      for (final notification in sampleNotifications) {
+        final exists = existingNotifications.any(
+          (existing) => existing.title == notification.title,
+        );
+        
+        if (!exists) {
+          await _databaseHelper.insertNotification(notification);
+        }
+      }
+    } catch (e) {
+      // Handle error silently
     }
   }
 
@@ -364,20 +360,79 @@ class NotificationService {
       category: 'expense_alert',
       timestamp: DateTime.now(),
       actionText: 'Voir détails',
+      actionType: 'see_expense_details',
     );
     await _databaseHelper.insertNotification(notification);
   }
 
-  // Create notification for new income
+  // Create notification for new income - DISABLED
   Future<void> notifyIncomeAdded(String title, double amount) async {
+    // Income notifications have been disabled to reduce notification fatigue
+    return;
+    
+    // Original code below (disabled):
+    /*
     final notification = AppNotification(
       title: 'Revenu ajouté',
       body: '$title: ${amount.toStringAsFixed(0)} FCFA enregistré',
       category: 'income_reminder',
       timestamp: DateTime.now(),
       actionText: 'Voir détails',
+      actionType: 'see_income_details',
     );
     await _databaseHelper.insertNotification(notification);
+    */
+  }
+
+  // Check if monthly report notification should be created
+  // Only create it if:
+  // 1. User has performed operations (has expenses or income)
+  // 2. It's a new month compared to the last report
+  Future<bool> shouldCreateMonthlyReportNotification() async {
+    try {
+      // Check if user has any expenses or income
+      final expenses = await _databaseHelper.getExpenses();
+      final incomes = await _databaseHelper.getIncomes();
+      
+      if (expenses.isEmpty && incomes.isEmpty) {
+        return false;
+      }
+
+      // Check if a monthly report notification was already sent this month
+      // Monthly report notifications are disabled
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Create monthly report notification
+  // Monthly report notification - DISABLED
+  Future<void> notifyMonthlyReport(String monthYear) async {
+    // Monthly report notifications have been disabled
+    return;
+  }
+
+  // Clear all sample notifications from database
+  Future<void> clearSampleNotifications() async {
+    try {
+      final notifications = await _databaseHelper.getNotifications();
+      final titlesToClear = [
+        'Objectif presque atteint !',
+        'Transaction récurrente',
+        'Nouvelle fonctionnalité',
+        'Nouveau revenu ajouté',  // Old income notifications
+        'Rapport mensuel prêt',    // Old monthly report notifications
+      ];
+      
+      for (final notification in notifications) {
+        if (titlesToClear.contains(notification.title)) {
+          await _databaseHelper.deleteNotification(notification.id!);
+        }
+      }
+    } catch (e) {
+
+    }
   }
 }
 
@@ -386,4 +441,10 @@ enum NotificationCategory {
   goalProgress,
   budgetLimit,
   recurringTransaction,
+}
+
+enum NotificationPriority {
+  critical,       // 🔴 Budget exceeded, goal reached
+  important,      // 🔵 75% thresholds, milestones
+  informational,  // ⚪ Tips, planning reminders
 }

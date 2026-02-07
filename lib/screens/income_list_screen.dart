@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/income.dart';
 import '../helpers/database_helper.dart';
 import '../utils/theme.dart';
 import '../utils/date_utils.dart';
+import '../utils/currency_formatter.dart';
 import '../config/income_config.dart';
 import 'add_edit_income_screen.dart';
 import 'export_dialog.dart';
@@ -362,29 +362,65 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
           ),
         ],
         bottom: _showSearchBar ? PreferredSize(
-          preferredSize: Size.fromHeight(60),
+          preferredSize: Size.fromHeight(70),
           child: Container(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+            color: Theme.of(context).colorScheme.surface,
             child: TextField(
               controller: _searchController,
+              autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Rechercher par titre ou description...',
-                prefixIcon: Icon(Icons.search_rounded),
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 14,
+                ),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear_rounded),
+                        icon: Icon(Icons.clear_rounded, color: AppColors.primary),
                         onPressed: () {
                           _searchController.clear();
+                          _searchQuery = '';
+                          _applyFilters();
                         },
                       )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: AppColors.primary.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.primary.withOpacity(0.3),
+                    width: 1.5,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.primary,
+                    width: 2,
+                  ),
                 ),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.9),
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 15,
+              ),
+              cursorColor: AppColors.primary,
             ),
           ),
         ) : null,
@@ -447,7 +483,7 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        _totalIncomes.toStringAsFixed(0),
+                        CurrencyFormatter.format(_totalIncomes),
                         style: const TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -610,7 +646,7 @@ class _IncomeListScreenState extends State<IncomeListScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        '+${income.amount.toStringAsFixed(0)} FCFA',
+                                        CurrencyFormatter.formatWithSign(income.amount),
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,

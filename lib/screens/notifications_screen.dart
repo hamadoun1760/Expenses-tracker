@@ -3,6 +3,10 @@ import 'package:intl/intl.dart';
 import '../models/notification.dart';
 import '../helpers/database_helper.dart';
 import '../utils/theme.dart';
+import 'expense_list_screen.dart';
+import 'income_list_screen.dart';
+import 'goal_management_screen.dart';
+import 'statistics_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -30,6 +34,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final notifications = await _databaseHelper.getNotifications(
         unreadOnly: _filter == 'unread'
       );
+      
       setState(() {
         _notifications = notifications;
         _isLoading = false;
@@ -283,12 +288,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                         const Spacer(),
                         if (notification.actionText != null)
-                          Text(
-                            notification.actionText!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w500,
+                          Material(
+                            type: MaterialType.transparency,
+                            child: InkWell(
+                              onTap: () {
+                                print('DEBUG: Action button tapped - actionText: ${notification.actionText}, actionType: ${notification.actionType}');
+                                _markAsRead(notification);
+                                _handleNotificationAction(notification);
+                              },
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Text(
+                                  notification.actionText!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                       ],
@@ -389,6 +408,139 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
     );
+  }
+
+  void _handleNotificationAction(AppNotification notification) {
+    if (notification.actionType == null || notification.actionType!.isEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+      );
+      return;
+    }
+
+    final actionType = notification.actionType!.trim();
+
+    switch (actionType) {
+      case 'see_expense_details':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+        );
+        break;
+      case 'see_income_details':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const IncomeListScreen()),
+        );
+        break;
+      case 'see_goal_progress':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const GoalManagementScreen()),
+        );
+        break;
+      case 'manage_recurring':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+        );
+        break;
+      case 'explore_statistics':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const StatisticsScreen()),
+        );
+        break;
+      case 'download_monthly_report':
+        _showMonthlyReportDialog(notification);
+        break;
+      default:
+        print('DEBUG: No case matched for actionType: "$actionType"');
+        print('DEBUG: Available cases: see_expense_details, see_income_details, see_goal_progress, manage_recurring, explore_statistics, download_monthly_report');
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const ExpenseListScreen()),
+        );
+    }
+  }
+
+  void _showMonthlyReportDialog(AppNotification notification) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Rapport Mensuel',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                notification.body,
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              if (notification.payload != null)
+                Text(
+                  'Période: ${notification.payload}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                  ),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Fermer'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _downloadMonthlyReport(notification);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
+              child: const Text(
+                'Télécharger PDF',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _downloadMonthlyReport(AppNotification notification) {
+    // Show a snackbar indicating the download process
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Téléchargement du rapport en cours...'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.primary,
+      ),
+    );
+
+    // In a real app, you would:
+    // 1. Generate the PDF report
+    // 2. Save it to device storage
+    // 3. Open it with a PDF viewer
+    // For now, we'll simulate this with a success message
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Rapport ${notification.payload ?? 'mensuel'} téléchargé avec succès',
+            ),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 
   String _getTimeAgo(DateTime timestamp) {

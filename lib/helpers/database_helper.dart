@@ -42,7 +42,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'expenses.db');
     return await openDatabase(
       path,
-      version: 15, // Added custom_category_name field to debts table
+      version: 16, // Added action_type field to notifications table
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -237,6 +237,7 @@ class DatabaseHelper {
         is_read INTEGER DEFAULT 0,
         payload TEXT,
         action_text TEXT,
+        action_type TEXT,
         icon TEXT
       )
     ''');
@@ -492,6 +493,16 @@ class DatabaseHelper {
       await db.execute('''
         ALTER TABLE debts ADD COLUMN custom_category_name TEXT
       ''');
+    }
+    if (oldVersion < 16) {
+      // Add action_type field to notifications table
+      try {
+        await db.execute('''
+          ALTER TABLE notifications ADD COLUMN action_type TEXT
+        ''');
+      } catch (e) {
+        // Column might already exist
+      }
     }
   }
 

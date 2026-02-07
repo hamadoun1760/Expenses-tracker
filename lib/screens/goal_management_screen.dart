@@ -205,227 +205,279 @@ class _GoalManagementScreenState extends State<GoalManagementScreen> with Ticker
   Widget _buildGoalCard(Goal goal) {
     final color = Color(goal.colorValue);
     final progress = goal.progressPercentage;
-    
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: goal.isOverdue ? Colors.red.withOpacity(0.3) : color.withOpacity(0.2),
-            width: goal.isOverdue ? 2 : 1,
+    List<Widget> actionButtons = _buildActionButtons(goal, color);
+    return GestureDetector(
+      onTap: () => _showGoalDetails(goal),
+      child: Card(
+        elevation: 2,
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: goal.isOverdue ? Colors.red.withOpacity(0.3) : color.withOpacity(0.2),
+              width: goal.isOverdue ? 2 : 1,
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(_getIconData(goal.iconName), color: color, size: 22),
                     ),
-                    child: Icon(
-                      _getIconData(goal.iconName),
-                      color: color,
-                      size: 22,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            goal.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: goal.typeColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  goal.typeDisplayName,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: goal.typeColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: goal.priorityColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  goal.priorityDisplayName,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: goal.priorityColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+                    if (goal.isOverdue)
+                      Icon(
+                        Icons.warning,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Progress
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${progress.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: progress >= 100 ? Colors.green : color,
+                      ),
+                    ),
+                    Text(
+                      '${_formatAmount(goal.currentAmount)} / ${_formatAmount(goal.targetAmount)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: progress / 100,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    progress >= 100 ? Colors.green : color,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
+                  minHeight: 6,
+                ),
+                const SizedBox(height: 12),
+                // Details
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          goal.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                          'Échéance',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
                           ),
                         ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: goal.typeColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                goal.typeDisplayName,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: goal.typeColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: goal.priorityColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                goal.priorityDisplayName,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: goal.priorityColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          _formatDate(goal.targetDate),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: goal.isOverdue ? Colors.red : Colors.black87,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  if (goal.isOverdue)
-                    Icon(
-                      Icons.warning,
-                      color: Colors.red,
-                      size: 20,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Jours restants',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          goal.daysRemaining.toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: goal.isOverdue ? Colors.red : Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              
-              // Progress
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${progress.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: progress >= 100 ? Colors.green : color,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Restant',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          _formatAmount(goal.remainingAmount),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Text(
-                    '${_formatAmount(goal.currentAmount)} / ${_formatAmount(goal.targetAmount)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: progress / 100,
-                backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  progress >= 100 ? Colors.green : color,
+                  ],
                 ),
-                minHeight: 6,
-              ),
-              const SizedBox(height: 12),
-              
-              // Details
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Échéance',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      Text(
-                        _formatDate(goal.targetDate),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: goal.isOverdue ? Colors.red : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Jours restants',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      Text(
-                        goal.daysRemaining.toString(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: goal.isOverdue ? Colors.red : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Restant',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      Text(
-                        _formatAmount(goal.remainingAmount),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              
-              // Actions
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => _editGoal(goal),
-                    icon: const Icon(Icons.edit, size: 16),
-                    label: const Text('Modifier'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: color,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (goal.status == GoalStatus.active && !goal.isCompleted)
-                    TextButton.icon(
-                      onPressed: () => _updateProgress(goal),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Progrès'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.green,
-                      ),
-                    ),
-                ],
-              ),
-            ],
+                const SizedBox(height: 12),
+                Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: actionButtons,
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  void _showGoalDetails(Goal goal) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(goal.colorValue).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(_getIconData(goal.iconName), color: Color(goal.colorValue), size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text('Description:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(goal.description ?? 'Aucune description', style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 16),
+                Text('Montant cible:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_formatAmount(goal.targetAmount)),
+                const SizedBox(height: 8),
+                Text('Montant actuel:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_formatAmount(goal.currentAmount)),
+                const SizedBox(height: 8),
+                Text('Date de début:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_formatDate(goal.startDate)),
+                const SizedBox(height: 8),
+                Text('Date d\'échéance:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_formatDate(goal.targetDate)),
+                const SizedBox(height: 8),
+                Text('Priorité:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(goal.priorityDisplayName),
+                const SizedBox(height: 8),
+                Text('Statut:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(goal.statusDisplayName),
+                const SizedBox(height: 8),
+                Text('Jours restants:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(goal.daysRemaining.toString()),
+                const SizedBox(height: 8),
+                Text('Montant restant:', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_formatAmount(goal.remainingAmount)),
+                const SizedBox(height: 16),
+                LinearProgressIndicator(
+                  value: goal.progressPercentage / 100,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation<Color>(goal.progressPercentage >= 100 ? Colors.green : Color(goal.colorValue)),
+                  minHeight: 6,
+                ),
+                const SizedBox(height: 8),
+                Text('Progression: ${goal.progressPercentage.toStringAsFixed(1)}%'),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -470,7 +522,7 @@ class _GoalManagementScreenState extends State<GoalManagementScreen> with Ticker
 
   Future<void> _updateProgress(Goal goal) async {
     final controller = TextEditingController();
-    final currentAmount = await showDialog<double>(
+    final addedAmount = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Mettre à jour: ${goal.title}'),
@@ -482,7 +534,7 @@ class _GoalManagementScreenState extends State<GoalManagementScreen> with Ticker
             TextField(
               controller: controller,
               decoration: const InputDecoration(
-                labelText: 'Nouveau montant',
+                labelText: 'Montant à ajouter',
                 suffixText: 'FCFA',
                 border: OutlineInputBorder(),
               ),
@@ -501,17 +553,17 @@ class _GoalManagementScreenState extends State<GoalManagementScreen> with Ticker
               final amount = double.tryParse(controller.text);
               Navigator.pop(context, amount);
             },
-            child: const Text('Mettre à jour'),
+            child: const Text('Ajouter'),
           ),
         ],
       ),
     );
 
-    if (currentAmount != null && mounted) {
+    if (addedAmount != null && addedAmount > 0 && mounted) {
       try {
-        await _databaseHelper.updateGoalProgress(goal.id!, currentAmount);
+        final newTotal = goal.currentAmount + addedAmount;
+        await _databaseHelper.updateGoalProgress(goal.id!, newTotal);
         await _loadGoals();
-        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -523,14 +575,387 @@ class _GoalManagementScreenState extends State<GoalManagementScreen> with Ticker
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erreur lors de la mise à jour: $e'),
+            const SnackBar(
+              content: Text('Erreur lors de la mise à jour du progrès'),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     }
+  }
+
+  Future<void> _undoProgress(Goal goal) async {
+    final controller = TextEditingController();
+    final removedAmount = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Annuler progrès: ${goal.title}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Montant actuel: ${_formatAmount(goal.currentAmount)}'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Montant à soustraire',
+                suffixText: 'FCFA',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              autofocus: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              final amount = double.tryParse(controller.text);
+              Navigator.pop(context, amount);
+            },
+            child: const Text('Soustraire'),
+          ),
+        ],
+      ),
+    );
+
+    if (removedAmount != null && removedAmount > 0 && removedAmount <= goal.currentAmount && mounted) {
+      try {
+        final newTotal = goal.currentAmount - removedAmount;
+        await _databaseHelper.updateGoalProgress(goal.id!, newTotal);
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Progrès annulé avec succès'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de l\'annulation du progrès'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _pauseGoal(Goal goal) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Mettre en pause: ${goal.title}'),
+        content: const Text('Voulez-vous vraiment mettre cet objectif en pause ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        await _databaseHelper.updateGoal(goal.copyWith(status: GoalStatus.paused));
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objectif mis en pause'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la mise en pause'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _resumeGoal(Goal goal) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Reprendre: ${goal.title}'),
+        content: const Text('Voulez-vous vraiment reprendre cet objectif ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        await _databaseHelper.updateGoal(goal.copyWith(status: GoalStatus.active));
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objectif repris'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la reprise'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _completeGoal(Goal goal) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Terminer: ${goal.title}'),
+        content: const Text('Voulez-vous vraiment marquer cet objectif comme terminé ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        await _databaseHelper.updateGoal(goal.copyWith(status: GoalStatus.completed, currentAmount: goal.targetAmount));
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objectif marqué comme terminé'),
+              backgroundColor: Colors.blue,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la complétion'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _cancelGoal(Goal goal) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Annuler: ${goal.title}'),
+        content: const Text('Voulez-vous vraiment annuler cet objectif ? Cette action est irréversible.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        await _databaseHelper.updateGoal(goal.copyWith(status: GoalStatus.cancelled));
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objectif annulé'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de l\'annulation'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _deleteGoal(Goal goal) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Supprimer: ${goal.title}'),
+        content: const Text('Voulez-vous vraiment supprimer cet objectif ? Cette action est irréversible.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        await _databaseHelper.deleteGoal(goal.id!);
+        await _loadGoals();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objectif supprimé'),
+              backgroundColor: Colors.grey,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la suppression'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  List<Widget> _buildActionButtons(Goal goal, Color color) {
+    List<Widget> actionButtons = [
+      TextButton.icon(
+        onPressed: () => _editGoal(goal),
+        icon: const Icon(Icons.edit, size: 16),
+        label: const Text('Modifier'),
+        style: TextButton.styleFrom(
+          foregroundColor: color,
+        ),
+      ),
+    ];
+    if (goal.status == GoalStatus.active && !goal.isCompleted) {
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _updateProgress(goal),
+        icon: const Icon(Icons.add, size: 16),
+        label: const Text('Progrès'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.green,
+        ),
+      ));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _undoProgress(goal),
+        icon: const Icon(Icons.remove, size: 16),
+        label: const Text('Annuler progrès'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.orange,
+        ),
+      ));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _pauseGoal(goal),
+        icon: const Icon(Icons.pause, size: 16),
+        label: const Text('Pause'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.orange,
+        ),
+      ));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _completeGoal(goal),
+        icon: const Icon(Icons.check_circle, size: 16),
+        label: const Text('Terminer'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.blue,
+        ),
+      ));
+      actionButtons.add(const SizedBox(width: 8));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _cancelGoal(goal),
+        icon: const Icon(Icons.cancel, size: 16),
+        label: const Text('Annuler'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.red,
+        ),
+      ));
+    }
+    if (goal.status == GoalStatus.paused) {
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _resumeGoal(goal),
+        icon: const Icon(Icons.play_arrow, size: 16),
+        label: const Text('Reprendre'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.green,
+        ),
+      ));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _completeGoal(goal),
+        icon: const Icon(Icons.check_circle, size: 16),
+        label: const Text('Terminer'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.blue,
+        ),
+      ));
+      actionButtons.add(const SizedBox(width: 8));
+      actionButtons.add(TextButton.icon(
+        onPressed: () => _cancelGoal(goal),
+        icon: const Icon(Icons.cancel, size: 16),
+        label: const Text('Annuler'),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.red,
+        ),
+      ));
+    }
+    // Delete button always available
+    actionButtons.add(TextButton.icon(
+      onPressed: () => _deleteGoal(goal),
+      icon: const Icon(Icons.delete, size: 16),
+      label: const Text('Supprimer'),
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.grey,
+      ),
+    ));
+    return actionButtons;
   }
 
   @override

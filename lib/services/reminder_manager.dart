@@ -45,14 +45,14 @@ class ReminderManager {
   Future<void> _scheduleGoalProgressReminder(Goal goal) async {
     final progress = goal.progressPercentage;
     
-    // Send notification at 25%, 50%, 75%, and 90% progress
-    final milestones = [25.0, 50.0, 75.0, 90.0];
+    // Send notification at key milestones: 50% and 90% progress (reduced from 25%, 50%, 75%, 90%)
+    final milestones = [50.0, 90.0];
     
     for (final milestone in milestones) {
       if (progress >= milestone - 1 && progress <= milestone + 1) {
         await _notificationService.showNotification(
           id: NotificationService.goalProgressBaseId + goal.id! * 10 + milestone.toInt(),
-          title: 'Félicitations! 🎉',
+          title: 'Étape importante 🎯',
           body: 'Vous avez atteint ${milestone.toInt()}% de votre objectif "${goal.title}"!',
           payload: 'goal_progress_${goal.id}',
           category: NotificationCategory.goalProgress,
@@ -103,20 +103,20 @@ class ReminderManager {
     final spent = await _databaseHelper.getSpentAmountForBudget(budget);
     final percentage = (spent / budget.amount) * 100;
     
-    // Send warning at 80% and 95% of budget
-    if (percentage >= 80 && percentage < 95) {
+    // Send critical alerts at 75% and 95% of budget (reduced from 50%, 75%, 90%, 95%)
+    if (percentage >= 75 && percentage < 95) {
       await _notificationService.showNotification(
-        id: NotificationService.budgetLimitBaseId + budget.id! * 10 + 80,
-        title: 'Attention au budget ⚠️',
-        body: 'Vous avez dépensé 80% du budget "${budget.category}" ce mois-ci.',
+        id: NotificationService.budgetLimitBaseId + budget.id! * 10 + 75,
+        title: 'Budget à 75% ⚠️',
+        body: 'Vous avez dépensé 75% du budget "${budget.category}" ce mois-ci.',
         payload: 'budget_warning_${budget.id}',
         category: NotificationCategory.budgetLimit,
       );
     } else if (percentage >= 95) {
       await _notificationService.showNotification(
         id: NotificationService.budgetLimitBaseId + budget.id! * 10 + 95,
-        title: 'Budget presque épuisé! 🚨',
-        body: 'Vous avez dépensé 95% du budget "${budget.category}". Soyez prudent!',
+        title: 'Budget critique! 🚨',
+        body: 'Vous avez dépensé 95% du budget "${budget.category}". Attention!',
         payload: 'budget_limit_${budget.id}',
         category: NotificationCategory.budgetLimit,
       );

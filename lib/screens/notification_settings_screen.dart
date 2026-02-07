@@ -335,7 +335,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
                 _buildSettingTile(
                   title: 'Progrès des objectifs',
-                  subtitle: 'Notifications lors des étapes importantes (25%, 50%, 75%, 90%)',
+                  subtitle: 'Notifications aux étapes clés (50%, 90%)',
                   value: _goalProgressNotifications,
                   onChanged: (value) {
                     setState(() {
@@ -377,7 +377,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
                 _buildSettingTile(
                   title: 'Limites de budget',
-                  subtitle: 'Alertes à 80% et 95% du budget mensuel',
+                  subtitle: 'Alertes critiques à 75% et 95% du budget',
                   value: _budgetLimitNotifications,
                   onChanged: (value) {
                     setState(() {

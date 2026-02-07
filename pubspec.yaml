@@ -65,6 +65,7 @@ dependencies:
   image_picker: ^1.1.2  # Image picking from gallery/camera
   google_mlkit_text_recognition: ^0.13.1  # OCR text recognition
   image: ^4.2.0  # Image processing
+  url_launcher: ^6.2.5  # URL launcher for WhatsApp integration
 
 dev_dependencies:
   flutter_test:

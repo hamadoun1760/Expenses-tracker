@@ -4,6 +4,8 @@ import '../models/debt.dart';
 import '../models/custom_category.dart';
 import '../providers/debt_provider.dart';
 import '../helpers/database_helper.dart';
+import '../services/whatsapp_service.dart';
+import '../utils/currency_formatter.dart';
 import '../widgets/modern_ui_components.dart';
 import '../widgets/modern_animations.dart';
 import 'add_edit_debt_screen.dart';
@@ -274,7 +276,7 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${debtProvider.totalDebt.toStringAsFixed(0)} FCFA',
+                          CurrencyFormatter.formatWithCurrency(debtProvider.totalDebt),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -309,7 +311,7 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${debtProvider.totalPaidOff.toStringAsFixed(0)} FCFA',
+                          CurrencyFormatter.formatWithCurrency(debtProvider.totalPaidOff),
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -369,8 +371,8 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildStatItem('Dettes Actives', '${debtProvider.activeDebts.length}'),
-                      _buildStatItem('Paiements Min.', '${debtProvider.totalMinimumPayments.toStringAsFixed(0)} FCFA'),
-                      _buildStatItem('Intérêts Est.', '${debtProvider.totalInterestEstimate.toStringAsFixed(0)} FCFA'),
+                      _buildStatItem('Paiements Min.', CurrencyFormatter.formatWithCurrency(debtProvider.totalMinimumPayments)),
+                      _buildStatItem('Intérêts Est.', CurrencyFormatter.formatWithCurrency(debtProvider.totalInterestEstimate)),
                     ],
                   ),
                 ],
@@ -614,7 +616,7 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '${debt.currentBalance.toStringAsFixed(0)} FCFA',
+                              CurrencyFormatter.formatWithCurrency(debt.currentBalance),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -630,6 +632,34 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
                               ),
                             ),
                           ],
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'whatsapp') {
+                              _sendWhatsAppReminder(context, debt);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'whatsapp',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.message,
+                                    color: Color(0xFF25D366),
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text('Rappel WhatsApp'),
+                                ],
+                              ),
+                            ),
+                          ],
+                          icon: Icon(
+                            Icons.more_vert,
+                            color: Colors.grey.shade600,
+                            size: 20,
+                          ),
                         ),
                       ],
                     ),
@@ -683,6 +713,46 @@ class _DebtManagementScreenState extends State<DebtManagementScreen>
     if (mounted) {
       await debtProvider.loadDebts();
       await _loadCustomCategories();
+    }
+  }
+
+  Future<void> _sendWhatsAppReminder(BuildContext context, Debt debt) async {
+    try {
+      if (debt.phoneNumber.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Veuillez ajouter un numéro de téléphone pour ce débiteur'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      await WhatsAppService().sendDebtReminder(
+        phoneNumber: debt.phoneNumber,
+        name: debt.debtorCreditorName,
+        amount: debt.currentBalance,
+        description: debt.description,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Rappel envoyé via WhatsApp ✓'),
+            backgroundColor: Color(0xFF25D366),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

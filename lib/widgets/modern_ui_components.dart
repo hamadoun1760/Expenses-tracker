@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../utils/theme.dart';
+import '../utils/currency_formatter.dart';
 
 /// Modern glassmorphic card with backdrop blur effect
 class GlassmorphicCard extends StatelessWidget {
@@ -451,7 +452,7 @@ class _ModernExpenseCardState extends State<ModernExpenseCard>
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '-${amount.toStringAsFixed(0)} FCFA',
+                        '-${CurrencyFormatter.formatWithCurrency(amount)}',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.red[600],

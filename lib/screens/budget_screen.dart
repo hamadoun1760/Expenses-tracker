@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/budget.dart';
 import '../models/expense.dart';
 import '../helpers/database_helper.dart';
+import '../utils/currency_formatter.dart';
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -366,7 +367,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ),
                       ),
                       Text(
-                        '${spent.toStringAsFixed(0)} FCFA',
+                        CurrencyFormatter.formatWithCurrency(spent),
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: progressColor,
                           fontWeight: FontWeight.bold,
@@ -384,7 +385,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ),
                       ),
                       Text(
-                        '${remaining.abs().toStringAsFixed(0)} FCFA',
+                        CurrencyFormatter.formatWithCurrency(remaining.abs()),
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: isOverBudget ? Colors.red : Colors.green,
                           fontWeight: FontWeight.bold,
@@ -407,7 +408,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ),
                   ),
                   Text(
-                    '${budget.amount.toStringAsFixed(0)} FCFA',
+                    CurrencyFormatter.formatWithCurrency(budget.amount),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],

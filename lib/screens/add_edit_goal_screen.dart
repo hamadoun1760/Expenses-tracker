@@ -462,6 +462,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
           const SizedBox(height: 20),
           _buildTypeDropdown(),
           const SizedBox(height: 20),
+          _buildPriorityDropdown(),
+          const SizedBox(height: 20),
           _buildDateFields(),
           const SizedBox(height: 20),
           _buildAccountDropdown(),
@@ -611,7 +613,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<GoalType>(
-          value: _selectedType,
+          initialValue: _selectedType,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -631,6 +633,47 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
           onChanged: (value) {
             setState(() {
               _selectedType = value!;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriorityDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Priorité',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF2D3748),
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<GoalPriority>(
+          initialValue: _selectedPriority,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF8F9FA),
+            prefixIcon: const Icon(Icons.priority_high_rounded, color: Color(0xFF7B1FA2)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          items: GoalPriority.values.map((priority) {
+            return DropdownMenuItem(
+              value: priority,
+              child: Text(_getPriorityDisplayName(priority)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedPriority = value!;
             });
           },
         ),
@@ -746,7 +789,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<Account>(
-          value: _selectedAccount,
+          initialValue: _selectedAccount,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

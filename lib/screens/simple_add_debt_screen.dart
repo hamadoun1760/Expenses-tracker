@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:provider/provider.dart';
 import '../models/debt.dart';
@@ -506,13 +507,18 @@ class _SimpleAddDebtScreenState extends State<SimpleAddDebtScreen> {
                 color: Color(0xFF1976D2),
                 size: 22,
               ),
-              suffixIcon: IconButton(
-                icon: const Icon(
-                  Icons.contacts_rounded,
-                  color: Color(0xFF1976D2),
-                  size: 22,
+              suffixIcon: Tooltip(
+                message: kIsWeb 
+                  ? 'Sélection de contacts disponible uniquement sur mobile'
+                  : 'Sélectionner un contact',
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.contacts_rounded,
+                    color: Color(0xFF1976D2),
+                    size: 22,
+                  ),
+                  onPressed: _pickContact,
                 ),
-                onPressed: _pickContact,
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -1134,32 +1140,85 @@ class _SimpleAddDebtScreenState extends State<SimpleAddDebtScreen> {
 
   Future<void> _pickContact() async {
     try {
-      if (await FlutterContacts.requestPermission()) {
-        final contact = await FlutterContacts.openExternalPick();
-        if (contact != null) {
-          setState(() {
-            _contactNameController.text = contact.displayName;
-            if (contact.phones.isNotEmpty) {
-              _contactPhoneController.text = contact.phones.first.number;
-            }
-          });
-        }
-      } else {
-        // Show permission denied message
+      // Check if the platform supports contact picker (not web)
+      if (kIsWeb) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Permission d\'accès aux contacts refusée'),
+              content: Text('La sélection de contacts n\'est disponible que sur les appareils mobiles.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Request permission first
+      final permissionGranted = await FlutterContacts.requestPermission(readonly: false);
+      
+      if (permissionGranted) {
+        // Open contact picker
+        final contact = await FlutterContacts.openExternalPick();
+        
+        if (contact != null) {
+          setState(() {
+            // Set contact name
+            _contactNameController.text = contact.displayName;
+            
+            // Set phone number - prefer mobile number
+            if (contact.phones.isNotEmpty) {
+              // Try to find a mobile number first (case-insensitive)
+              final selectedPhone = contact.phones.firstWhere(
+                (phone) {
+                  final label = phone.label.toString().toLowerCase();
+                  return label.contains('mobile') || label.contains('cell') || label.contains('cellulaire');
+                },
+                orElse: () => contact.phones.first,
+              );
+              
+              // Clean phone number: remove spaces, dashes, parentheses, +
+              String cleanedPhone = selectedPhone.number
+                  .replaceAll(' ', '')
+                  .replaceAll('-', '')
+                  .replaceAll('(', '')
+                  .replaceAll(')', '')
+                  .replaceAll('+', '');
+              
+              _contactPhoneController.text = cleanedPhone;
+            }
+          });
+          
+          // Show success feedback
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Contact sélectionné: ${contact.displayName}'),
+                duration: const Duration(seconds: 2),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } else {
+        // Permission denied
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Permission d\'accès aux contacts refusée. Veuillez l\'autoriser dans les paramètres de l\'app.'),
+              duration: Duration(seconds: 3),
+              backgroundColor: Colors.orange,
             ),
           );
         }
       }
     } catch (e) {
-      // Handle error
+      // Handle any errors
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur lors de la sélection du contact'),
+          SnackBar(
+            content: Text('Erreur: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.red,
           ),
         );
       }

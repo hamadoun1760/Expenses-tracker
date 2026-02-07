@@ -9,6 +9,7 @@ class AppNotification {
   final bool isRead;
   final String? payload;
   final String? actionText;
+  final String? actionType;
   final String? icon;
 
   AppNotification({
@@ -20,6 +21,7 @@ class AppNotification {
     this.isRead = false,
     this.payload,
     this.actionText,
+    this.actionType,
     this.icon,
   });
 
@@ -33,6 +35,7 @@ class AppNotification {
       'is_read': isRead ? 1 : 0,
       'payload': payload,
       'action_text': actionText,
+      'action_type': actionType,
       'icon': icon,
     };
   }
@@ -47,6 +50,7 @@ class AppNotification {
       isRead: map['is_read'] == 1,
       payload: map['payload'],
       actionText: map['action_text'],
+      actionType: map['action_type'],
       icon: map['icon'],
     );
   }
@@ -60,6 +64,7 @@ class AppNotification {
     bool? isRead,
     String? payload,
     String? actionText,
+    String? actionType,
     String? icon,
   }) {
     return AppNotification(
@@ -71,6 +76,7 @@ class AppNotification {
       isRead: isRead ?? this.isRead,
       payload: payload ?? this.payload,
       actionText: actionText ?? this.actionText,
+      actionType: actionType ?? this.actionType,
       icon: icon ?? this.icon,
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../helpers/database_helper.dart';
+import '../utils/currency_formatter.dart';
 import '../models/expense.dart';
 import '../models/goal.dart';
 import '../models/account.dart';
@@ -10,7 +11,6 @@ import '../providers/locale_provider.dart';
 import '../providers/user_provider.dart';
 import '../utils/date_utils.dart';
 import '../widgets/notification_bell.dart';
-import '../services/notification_service.dart';
 import 'add_edit_expense_screen.dart';
 import 'camera_receipt_screen.dart';
 import 'expense_list_screen.dart';
@@ -19,7 +19,6 @@ import 'statistics_screen.dart';
 import 'goal_management_screen.dart';
 import 'settings_screen.dart';
 import 'user_profile_screen.dart';
-import 'debt_management_screen.dart';
 import 'west_african_debt_screen.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -73,20 +72,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
     _fabAnimationController.forward();
     
     _loadDashboardData();
-    _createSampleNotifications();
+    // Sample notifications auto-creation disabled to prevent persisting
+    // notifications after uninstall/reinstall cycles
   }
 
-  Future<void> _createSampleNotifications() async {
-    try {
-      // Only create sample notifications once
-      final existingCount = await _databaseHelper.getUnreadNotificationCount();
-      if (existingCount == 0) {
-        await NotificationService().createSampleNotifications();
-      }
-    } catch (e) {
-      // Handle error silently
-    }
-  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -1167,7 +1156,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${_monthlyIncome.toStringAsFixed(0)} FCFA',
+                          CurrencyFormatter.formatWithCurrency(_monthlyIncome),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -1221,7 +1210,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${_monthlyExpenses.toStringAsFixed(0)} FCFA',
+                          CurrencyFormatter.formatWithCurrency(_monthlyExpenses),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -1254,7 +1243,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_totalBalance.toStringAsFixed(0)} FCFA',
+                    CurrencyFormatter.formatWithCurrency(_totalBalance),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -1589,7 +1578,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> with TickerPr
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '-${expense.amount.toStringAsFixed(0)} FCFA',
+                '-${CurrencyFormatter.formatWithCurrency(expense.amount)}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.red[600],

@@ -5,6 +5,7 @@ import '../models/expense.dart';
 import '../models/income.dart';
 import '../models/custom_category.dart';
 import '../helpers/database_helper.dart';
+import '../utils/currency_formatter.dart';
 import 'home_dashboard_screen.dart';
 import 'expense_list_screen.dart';
 import 'income_list_screen.dart';
@@ -425,115 +426,129 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Widget _buildOverviewCards() {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.red.shade400,
-                  Colors.red.shade600,
+    return SizedBox(
+      height: 140, // Fixed height for both cards
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.red.shade400,
+                    Colors.red.shade600,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.trending_down,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Dépenses',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${NumberFormat('#,###').format(_totalExpenses)} FCFA',
-                  style: const TextStyle(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.trending_down,
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    size: 28,
                   ),
-                ),
-              ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Dépenses',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.formatWithCurrency(_totalExpenses),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.green.shade400,
-                  Colors.green.shade600,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.green.shade400,
+                    Colors.green.shade600,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green.withOpacity(0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.trending_up,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Revenus',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${NumberFormat('#,###').format(_totalIncomes)} FCFA',
-                  style: const TextStyle(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.trending_up,
                     color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    size: 28,
                   ),
-                ),
-              ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Revenus',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.formatWithCurrency(_totalIncomes),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -682,7 +697,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                             ),
                           ),
                           Text(
-                            'Total: ${total.toStringAsFixed(0)} FCFA',
+                            'Total: ${CurrencyFormatter.formatWithCurrency(total)}',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.grey.shade600,
                             ),
@@ -800,7 +815,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                 ),
                               ),
                               Text(
-                                '${entry.value.toStringAsFixed(0)} FCFA (${percentage.toStringAsFixed(1)}%)',
+                                '${CurrencyFormatter.formatWithCurrency(entry.value)} (${percentage.toStringAsFixed(1)}%)',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: Colors.grey.shade600,
                                   fontSize: 10,
@@ -926,7 +941,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                       ),
                     ),
                     Text(
-                      '${entry.value.toStringAsFixed(0)} FCFA',
+                      CurrencyFormatter.formatWithCurrency(entry.value),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.onSurface,
